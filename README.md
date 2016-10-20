@@ -1,1 +1,3 @@
-# WME66_SMARTLED
+#
+WME66_SMARTLED
+sdk ver 1.4.2
