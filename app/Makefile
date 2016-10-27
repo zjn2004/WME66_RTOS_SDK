@@ -22,7 +22,9 @@ GEN_IMAGES= eagle.app.v6.out
 GEN_BINS= eagle.app.v6.bin
 SPECIAL_MKTARGETS=$(APP_MKTARGETS)
 SUBDIRS=    \
-	user
+	user \
+	driver \
+	ledctl
 
 endif # } PDIR
 
@@ -45,7 +47,13 @@ ifeq ($(FLAVOR),release)
 endif
 
 COMPONENTS_eagle.app.v6 = \
-	user/libuser.a
+	user/libuser.a \
+	driver/libdriver.a
+
+ifneq ($(RELEASE),1)
+COMPONENTS_eagle.app.v6 += \
+        ledctl/libledctl.a
+endif
 
 LINKFLAGS_eagle.app.v6 = \
 	-L$(SDK_PATH)/lib        \
@@ -69,9 +77,16 @@ LINKFLAGS_eagle.app.v6 = \
 	-llwip	\
 	-lespconn\
 	-lsmartconfig \
-	-lairkiss\
-	$(DEP_LIBS_eagle.app.v6)					\
-	-Wl,--end-group
+	-lairkiss
+
+ifeq ($(RELEASE),1)
+LINKFLAGS_eagle.app.v6 += \
+        -lledctl
+endif
+
+LINKFLAGS_eagle.app.v6 += \
+        $(DEP_LIBS_eagle.app.v6) \
+        -Wl,--end-group
 
 DEPENDS_eagle.app.v6 = \
                 $(LD_FILE) \

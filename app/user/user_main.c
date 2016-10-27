@@ -33,6 +33,8 @@
 #include "espressif/espconn.h"
 #include "espressif/airkiss.h"
 
+#include "driver/uart.h"
+
 #define server_ip "192.168.101.142"
 #define server_port 9669
 
@@ -214,6 +216,8 @@ smartconfig_task(void *pvParameters)
 void ICACHE_FLASH_ATTR
 user_init(void)
 {
+    uart_init_new();
+
     printf("SDK version:%s\n", system_get_sdk_version());
 
     /* need to set opmode before you set config */
