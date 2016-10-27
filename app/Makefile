@@ -24,7 +24,11 @@ SPECIAL_MKTARGETS=$(APP_MKTARGETS)
 SUBDIRS=    \
 	user \
 	driver \
-	ledctl
+	ledctl \
+	mgmt \
+	iksemel \
+	atcmd \
+	websocket
 
 endif # } PDIR
 
@@ -50,10 +54,12 @@ COMPONENTS_eagle.app.v6 = \
 	user/libuser.a \
 	driver/libdriver.a
 
-ifneq ($(RELEASE),1)
 COMPONENTS_eagle.app.v6 += \
-        ledctl/libledctl.a
-endif
+        ledctl/libledctl.a \
+	mgmt/libmgmt.a  \
+        iksemel/libiksemel.a  \
+        atcmd/libatcmd.a  \
+	websocket/libwebsocket.a
 
 LINKFLAGS_eagle.app.v6 = \
 	-L$(SDK_PATH)/lib        \
@@ -77,14 +83,7 @@ LINKFLAGS_eagle.app.v6 = \
 	-llwip	\
 	-lespconn\
 	-lsmartconfig \
-	-lairkiss
-
-ifeq ($(RELEASE),1)
-LINKFLAGS_eagle.app.v6 += \
-        -lledctl
-endif
-
-LINKFLAGS_eagle.app.v6 += \
+	-lairkiss \
         $(DEP_LIBS_eagle.app.v6) \
         -Wl,--end-group
 
