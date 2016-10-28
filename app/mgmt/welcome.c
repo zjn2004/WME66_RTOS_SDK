@@ -208,7 +208,7 @@ welcome_ping_sent_cb(void* arg, void *pdata)
 void ICACHE_FLASH_ATTR
 welcome_ping_test(uint32_t ip)
 {
-    struct ping_option *ping_opt = (struct ping_option *)os_zalloc(sizeof(struct ping_option));
+    struct ping_option *ping_opt = (struct ping_option *)zalloc(sizeof(struct ping_option));
     
     log_debug("test\n");
     ping_opt->count = WELCOME_MAX_PING_COUNT;    
@@ -229,9 +229,9 @@ welcome_packet_handle(void)
     sint8 ret;
     log_debug("system_get_free_heap_size = %d\n", system_get_free_heap_size());
 
-    welcome_udpSendEspconn = (struct espconn*)os_zalloc(sizeof(struct espconn));
+    welcome_udpSendEspconn = (struct espconn*)zalloc(sizeof(struct espconn));
     welcome_udpSendEspconn->type = ESPCONN_UDP;
-    welcome_udpSendEspconn->proto.udp = (esp_udp *)os_zalloc(sizeof(esp_udp));
+    welcome_udpSendEspconn->proto.udp = (esp_udp *)zalloc(sizeof(esp_udp));
     welcome_udpSendEspconn->proto.udp->local_port = 67;  
 
     espconn_regist_recvcb(welcome_udpSendEspconn, welcome_recv);
@@ -265,10 +265,10 @@ welcome_write_table_to_flash(void)
 {
     struct hnt_mgmt_saved_param param;
 
-    os_memset(&param, 0, sizeof(param));
+    memset(&param, 0, sizeof(param));
     hnt_mgmt_load_param(&param);
      
-    os_memcpy(&param.welcome_info, welcome_info_table, (HNT_WELCOME_INFO_NUM * sizeof(welcome_info_t)));
+    memcpy(&param.welcome_info, welcome_info_table, (HNT_WELCOME_INFO_NUM * sizeof(welcome_info_t)));
     hnt_mgmt_save_param(&param);
 }
 void ICACHE_FLASH_ATTR
@@ -301,7 +301,7 @@ welcome_add_one_client(uint8_t mode, char *client_mac)
         log_debug("test\n");
         welcome_info_table[find_loc].welcome_flag = mode;
         welcome_info_table[find_loc].pad =0xFF;
-        os_memcpy(welcome_info_table[find_loc].client_mac_addr, client_mac, 6);    
+        memcpy(welcome_info_table[find_loc].client_mac_addr, client_mac, 6);    
     }
     else
     {
@@ -322,7 +322,7 @@ welcome_del_one_client(uint8_t mode, char *client_mac)
         if(os_memcmp(welcome_info_table[i].client_mac_addr, client_mac, 6) == 0)
         {
             log_debug("test\n");
-            os_memset(&welcome_info_table[i], 0, sizeof(welcome_info_t));
+            memset(&welcome_info_table[i], 0, sizeof(welcome_info_t));
             welcome_write_table_to_flash();
         }
     }
@@ -378,7 +378,7 @@ welcome_path_get(char *path_string, int size)
     char zero_mac[6] = {0};
     char ff_mac[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
-    os_memset(&param, 0, sizeof(param));
+    memset(&param, 0, sizeof(param));
     hnt_mgmt_load_param(&param);
 
     len += snprintf(path_string+len, sizeof(path_string) - len, "[");
@@ -428,9 +428,9 @@ welcome_stop(void)
     {
         espconn_delete(welcome_udpSendEspconn);
         if(welcome_udpSendEspconn->proto.udp != NULL)
-            os_free(welcome_udpSendEspconn->proto.udp);
+            free(welcome_udpSendEspconn->proto.udp);
 
-        os_free(welcome_udpSendEspconn);
+        free(welcome_udpSendEspconn);
         welcome_udpSendEspconn = NULL;
     }
 }
@@ -453,7 +453,7 @@ welcome_init(void)
        (welcome_action_leave_cb_func == NULL))
        return;
 
-    os_memset(&param, 0, sizeof(param));
+    memset(&param, 0, sizeof(param));
     hnt_mgmt_load_param(&param);
 
     for(i = 0; i < HNT_WELCOME_INFO_NUM; i++)
@@ -475,11 +475,11 @@ welcome_init(void)
     if(welcome_info_table != NULL)
         free(welcome_info_table);
         
-    welcome_info_table = (welcome_info_t *)os_zalloc(HNT_WELCOME_INFO_NUM * sizeof(welcome_info_t));
+    welcome_info_table = (welcome_info_t *)zalloc(HNT_WELCOME_INFO_NUM * sizeof(welcome_info_t));
     if(num != 0)
     {    
         log_debug("test\n");
-        os_memcpy(welcome_info_table, param.welcome_info, (HNT_WELCOME_INFO_NUM * sizeof(welcome_info_t)));
+        memcpy(welcome_info_table, param.welcome_info, (HNT_WELCOME_INFO_NUM * sizeof(welcome_info_t)));
     }
 
     for(i = 0; i < HNT_WELCOME_INFO_NUM; i++)

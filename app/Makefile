@@ -28,7 +28,8 @@ SUBDIRS=    \
 	mgmt \
 	iksemel \
 	atcmd \
-	websocket
+	websocket \
+	xmpp
 
 endif # } PDIR
 
@@ -59,7 +60,8 @@ COMPONENTS_eagle.app.v6 += \
 	mgmt/libmgmt.a  \
         iksemel/libiksemel.a  \
         atcmd/libatcmd.a  \
-	websocket/libwebsocket.a
+	websocket/libwebsocket.a \
+	xmpp/libxmpp.a
 
 LINKFLAGS_eagle.app.v6 = \
 	-L$(SDK_PATH)/lib        \

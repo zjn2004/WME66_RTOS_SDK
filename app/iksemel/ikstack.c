@@ -109,7 +109,7 @@ iks_stack_strdup (ikstack *s, const char *src, size_t len)
 	dest = c->data + c->used;
 	c->last = c->used;
 	c->used += len + 1;
-	os_memcpy (dest, src, len);
+	memcpy (dest, src, len);
 	dest[len] = '\0';
 	return dest;
 }
@@ -135,15 +135,15 @@ iks_stack_strcat (ikstack *s, char *old, size_t old_len, const char *src, size_t
 		ret = c->data + c->used;
 		c->last = c->used;
 		c->used += old_len + src_len + 1;
-		os_memcpy (ret, old, old_len);
-		os_memcpy (ret + old_len, src, src_len);
+		memcpy (ret, old, old_len);
+		memcpy (ret + old_len, src, src_len);
 		ret[old_len + src_len] = '\0';
 		return ret;
 	}
 
 	if (c->size - c->used > src_len) {
 		ret = c->data + c->last;
-		os_memcpy (ret + old_len, src, src_len);
+		memcpy (ret + old_len, src, src_len);
 		c->used += src_len;
 		ret[old_len + src_len] = '\0';
 	} else {
@@ -152,9 +152,9 @@ iks_stack_strcat (ikstack *s, char *old, size_t old_len, const char *src, size_t
 		if (!c) return NULL;
 		c->last = c->used;
 		ret = c->data + c->used;
-		os_memcpy (ret, old, old_len);
+		memcpy (ret, old, old_len);
 		c->used += old_len;
-		os_memcpy (c->data + c->used, src, src_len);
+		memcpy (c->data + c->used, src, src_len);
 		c->used += src_len;
 		c->data[c->used] = '\0';
 		c->used++;

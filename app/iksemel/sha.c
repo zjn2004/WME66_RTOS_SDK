@@ -31,7 +31,7 @@ iks_sha_new (void)
 void ICACHE_FLASH_ATTR
 iks_sha_reset (iksha *sha)
 {
-	os_memset (sha, 0, sizeof (iksha));
+	memset (sha, 0, sizeof (iksha));
 	sha->hash[0] = 0x67452301;
 	sha->hash[1] = 0xefcdab89;
 	sha->hash[2] = 0x98badcfe;

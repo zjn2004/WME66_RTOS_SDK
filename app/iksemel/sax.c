@@ -80,7 +80,7 @@ iks_sax_new (void *user_data, iksTagHook *tagHook, iksCDataHook *cdataHook)
 
 	prs = iks_malloc (sizeof (iksparser));
 	if (NULL == prs) return NULL;
-	os_memset (prs, 0, sizeof (iksparser));
+	memset (prs, 0, sizeof (iksparser));
 	prs->user_data = user_data;
 	prs->tagHook = tagHook;
 	prs->cdataHook = cdataHook;
@@ -94,7 +94,7 @@ iks_sax_extend (ikstack *s, void *user_data, iksTagHook *tagHook, iksCDataHook *
 
 	prs = iks_stack_alloc (s, sizeof (iksparser));
 	if (NULL == prs) return NULL;
-	os_memset (prs, 0, sizeof (iksparser));
+	memset (prs, 0, sizeof (iksparser));
 	prs->s = s;
 	prs->user_data = user_data;
 	prs->tagHook = tagHook;
@@ -157,7 +157,7 @@ stack_expand (iksparser *prs, int len)
 	tmp = iks_malloc (need);
 	if (!tmp) return 0;
 	diff = tmp - prs->stack;
-	os_memcpy (tmp, prs->stack, prs->stack_max);
+	memcpy (tmp, prs->stack, prs->stack_max);
 	iks_free (prs->stack);
 	prs->stack = tmp;
 	prs->stack_max = need;
@@ -184,7 +184,7 @@ stack_expand (iksparser *prs, int len)
 	if (prs->stack_max - prs->stack_pos <= slen) { \
 		if (0 == stack_expand (prs, slen)) return IKS_NOMEM; \
 	} \
-	os_memcpy (prs->stack + prs->stack_pos, sbuf, slen); \
+	memcpy (prs->stack + prs->stack_pos, sbuf, slen); \
 	prs->stack_pos += slen; \
 }
 
@@ -365,7 +365,7 @@ sax_core (iksparser *prs, char *buf, int len)
 					prs->attmax = 12;
 					prs->atts = iks_malloc (sizeof(char *) * 2 * 12);
 					if (!prs->atts) return IKS_NOMEM;
-					os_memset (prs->atts, 0, sizeof(char *) * 2 * 12);
+					memset (prs->atts, 0, sizeof(char *) * 2 * 12);
 					prs->attcur = 0;
 				} else {
 					if (prs->attcur >= ((prs->attmax - 1) * 2)) {
@@ -373,8 +373,8 @@ sax_core (iksparser *prs, char *buf, int len)
 						prs->attmax += 12;
 						tmp = iks_malloc (sizeof(char *) * 2 * prs->attmax);
 						if (!tmp) return IKS_NOMEM;
-						os_memset (tmp, 0, sizeof(char *) * 2 * prs->attmax);
-						os_memcpy (tmp, prs->atts, sizeof(char *) * prs->attcur);
+						memset (tmp, 0, sizeof(char *) * 2 * prs->attmax);
+						memcpy (tmp, prs->atts, sizeof(char *) * prs->attcur);
 						free (prs->atts);
 						prs->atts = tmp;
 					}

@@ -30,7 +30,7 @@ iks_strdup (const char *src)
     if (src) {
         tmp = (char *)malloc(strlen(src) + 1);
         if (tmp)
-            os_memcpy(tmp, src, strlen(src) + 1);
+            memcpy(tmp, src, strlen(src) + 1);
     }       
     return tmp;
 }
@@ -43,7 +43,7 @@ iks_strcat (char *dest, const char *src)
 	if (!src) return dest;
 
 	len = strlen (src);
-	os_memcpy (dest, src, len);
+	memcpy (dest, src, len);
 	dest[len] = '\0';
 	return dest + len;
 }
@@ -111,11 +111,11 @@ iks_escape (ikstack *s, char *src, size_t len)
 
 	for (i=j=0; i<len; i++) {
 		switch (src[i]) {
-		case '&': os_memcpy (&ret[j], "&amp;", 5); j += 5; break;
-		case '\'': os_memcpy (&ret[j], "&apos;", 6); j += 6; break;
-		case '"': os_memcpy (&ret[j], "&quot;", 6); j += 6; break;
-		case '<': os_memcpy (&ret[j], "&lt;", 4); j += 4; break;
-		case '>': os_memcpy (&ret[j], "&gt;", 4); j += 4; break;
+		case '&': memcpy (&ret[j], "&amp;", 5); j += 5; break;
+		case '\'': memcpy (&ret[j], "&apos;", 6); j += 6; break;
+		case '"': memcpy (&ret[j], "&quot;", 6); j += 6; break;
+		case '<': memcpy (&ret[j], "&lt;", 4); j += 4; break;
+		case '>': memcpy (&ret[j], "&gt;", 4); j += 4; break;
 		default: ret[j++] = src[i];
 		}
 	}

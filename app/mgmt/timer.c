@@ -58,8 +58,8 @@ split(char *p1, char *p2, char *splits[])
             end = os_strlen(p1);
         }
 
-        char *p = (char *) os_zalloc(100);
-        os_memcpy(p, p1 + start, end - start);
+        char *p = (char *) zalloc(100);
+        memcpy(p, p1 + start, end - start);
         p[end - start] = '\0';
         splits[j] = p;
         j++;
@@ -521,13 +521,13 @@ void ICACHE_FLASH_ATTR
 user_hnt_platform_timer_write_to_flash(void)
 {
     struct hnt_mgmt_saved_param param;
-    os_memset(&param, 0, sizeof(param));
+    memset(&param, 0, sizeof(param));
 
     hnt_mgmt_load_param(&param);
 
 	uint16 i = 0;
 
-    os_memcpy(param.group, wait_timer_param->group, sizeof(wait_timer_param->group));
+    memcpy(param.group, wait_timer_param->group, sizeof(wait_timer_param->group));
     param.saveTimestamp = wait_timer_param->saveTimestamp;
 
 	for(i=0;i<MAX_TIMER_COUNT;i++)
@@ -551,7 +551,7 @@ user_hnt_platform_timer_action(struct hnt_internal_wait_timer_param *wt_param, u
     uint16 i = 0;
     uint16 action_number;
 
-    os_memset(&pwait_action, 0, sizeof(pwait_action)); 
+    memset(&pwait_action, 0, sizeof(pwait_action)); 
     action_number = 0;
 
     for (i = 0; i < count ; i++) {
@@ -573,7 +573,7 @@ user_platform_timer_stop(void)
 {
     if(wait_timer_param != NULL)
     {
-        os_free(wait_timer_param);
+        free(wait_timer_param);
         wait_timer_param = NULL;
     }
 }
@@ -606,9 +606,9 @@ hnt_platform_timer_start(char *pbuffer)
         return;
 
     if(wait_timer_param == NULL)
-        wait_timer_param = (hnt_platform_wait_timer_param_t *)os_zalloc(sizeof(hnt_platform_wait_timer_param_t));
+        wait_timer_param = (hnt_platform_wait_timer_param_t *)zalloc(sizeof(hnt_platform_wait_timer_param_t));
 
-    os_memset(&(wait_timer_param->group[0]), 0, (MAX_TIMER_COUNT-1)*sizeof(hnt_timer_group_param_t));        
+    memset(&(wait_timer_param->group[0]), 0, (MAX_TIMER_COUNT-1)*sizeof(hnt_timer_group_param_t));        
     min_wait_second  = 0;
     log_debug("test\n");
 
@@ -617,7 +617,7 @@ hnt_platform_timer_start(char *pbuffer)
     timestamp = atoi(temp_str);
     wait_timer_param->timestamp = get_current_time();
 
-    os_memset(temp_str, 0, sizeof(temp_str));
+    memset(temp_str, 0, sizeof(temp_str));
     json_get_value(pbuffer, "type", temp_str, sizeof(temp_str) - 1);
     log_debug("test:temp_str = %s\n", temp_str);
     if(temp_str[0] == 'f')
@@ -633,7 +633,7 @@ hnt_platform_timer_start(char *pbuffer)
     }
     log_debug("test\n");
 
-    os_memset(temp_str, 0, sizeof(temp_str));
+    memset(temp_str, 0, sizeof(temp_str));
     json_get_value(pbuffer, "enable", temp_str, sizeof(temp_str) - 1);
     log_debug("test:temp_str = %s\n", temp_str);
     count = split(temp_str , ";" , timer_splits);
@@ -658,7 +658,7 @@ hnt_platform_timer_start(char *pbuffer)
         free(timer_splits[i]);
     }
     
-    os_memset(temp_str, 0, sizeof(temp_str));
+    memset(temp_str, 0, sizeof(temp_str));
     json_get_value(pbuffer, "on", temp_str, sizeof(temp_str) - 1);
     log_debug("test:temp_str = %s\n", temp_str);
     count = split(temp_str , ";" , timer_splits);
@@ -694,7 +694,7 @@ hnt_platform_timer_start(char *pbuffer)
     }
     log_debug("test\n");
 
-    os_memset(temp_str, 0, sizeof(temp_str));
+    memset(temp_str, 0, sizeof(temp_str));
     json_get_value(pbuffer, "off", temp_str, sizeof(temp_str) - 1);
     log_debug("test:temp_str = %s\n", temp_str);
     count = split(temp_str , ";" , timer_splits);
@@ -733,7 +733,7 @@ hnt_platform_timer_start(char *pbuffer)
     }
     log_debug("test\n");
 #if HNT_TIMER_WEEK_SUPPORT
-    os_memset(temp_str, 0, sizeof(temp_str));
+    memset(temp_str, 0, sizeof(temp_str));
     json_get_value(pbuffer, "weekday", temp_str, sizeof(temp_str) - 1);
     log_debug("test:temp_str = %s\n", temp_str);
     count = split(temp_str , ";" , timer_splits);
@@ -774,7 +774,7 @@ hnt_platform_timer_get(char *buffer)
         return;
     
     struct hnt_mgmt_saved_param param;
-    os_memset(&param, 0, sizeof(param));
+    memset(&param, 0, sizeof(param));
     hnt_mgmt_load_param(&param);
     
     len = snprintf(buffer, sizeof(buffer), "{\"type\":\"w\",\"timestamp\":\"%d\",\"enable\":\"",
@@ -923,9 +923,9 @@ hnt_platform_nightmode_timer_start(uint8_t mode, uint32 normalTime, uint32 close
     log_debug("test\n");
 
     if(wait_timer_param == NULL)
-        wait_timer_param = (hnt_platform_wait_timer_param_t *)os_zalloc(sizeof(hnt_platform_wait_timer_param_t));
+        wait_timer_param = (hnt_platform_wait_timer_param_t *)zalloc(sizeof(hnt_platform_wait_timer_param_t));
 
-    os_memset(&(wait_timer_param->group[NIGHTMODE_GROUP_INDEX]), 0, sizeof(hnt_timer_group_param_t));        
+    memset(&(wait_timer_param->group[NIGHTMODE_GROUP_INDEX]), 0, sizeof(hnt_timer_group_param_t));        
     min_wait_second  = 0;
     log_debug("test\n");
 
@@ -956,11 +956,11 @@ hnt_platform_night_mode_set(char *buff)
 
     if(nightmode_status == NIGHT_TIMER_MODE)
     {
-        os_memset(temp_str, 0, sizeof(temp_str));
+        memset(temp_str, 0, sizeof(temp_str));
         json_get_value(buff, "normalTime", temp_str, sizeof(temp_str) - 1);
         normal_time = atoi(temp_str);
         
-        os_memset(temp_str, 0, sizeof(temp_str));
+        memset(temp_str, 0, sizeof(temp_str));
         json_get_value(buff, "closeTime", temp_str, sizeof(temp_str) - 1);
         close_time = atoi(temp_str);
     }
@@ -1436,13 +1436,13 @@ void ICACHE_FLASH_ATTR
 user_hnt_platform_timer_write_to_flash2(void)
 {
     struct hnt_mgmt_saved_param param;
-    os_memset(&param, 0, sizeof(param));
+    memset(&param, 0, sizeof(param));
 
     hnt_mgmt_load_param(&param);
 
 	uint16 i = 0;
 
-    os_memcpy(param.group2, wait_timer_param2->group, sizeof(wait_timer_param2->group));
+    memcpy(param.group2, wait_timer_param2->group, sizeof(wait_timer_param2->group));
     param.saveTimestamp2 = wait_timer_param2->saveTimestamp;
 
 	for(i=0;i<MAX_TIMER_COUNT;i++)
@@ -1466,7 +1466,7 @@ user_hnt_platform_timer_action2(struct hnt_internal_wait_timer_param *wt_param, 
     uint16 i = 0;
     uint16 action_number;
 
-    os_memset(&pwait_action2, 0, sizeof(pwait_action2)); 
+    memset(&pwait_action2, 0, sizeof(pwait_action2)); 
     action_number = 0;
 
     for (i = 0; i < count ; i++) {
@@ -1488,7 +1488,7 @@ user_platform_timer_stop2(void)
 {
     if(wait_timer_param2 != NULL)
     {
-        os_free(wait_timer_param2);
+        free(wait_timer_param2);
         wait_timer_param2 = NULL;
     }
 }
@@ -1521,9 +1521,9 @@ hnt_platform_timer_start2(char *pbuffer)
         return;
 
     if(wait_timer_param2 == NULL)
-        wait_timer_param2 = (hnt_platform_wait_timer_param_t *)os_zalloc(sizeof(hnt_platform_wait_timer_param_t));
+        wait_timer_param2 = (hnt_platform_wait_timer_param_t *)zalloc(sizeof(hnt_platform_wait_timer_param_t));
 
-    os_memset(&(wait_timer_param2->group[0]), 0, (MAX_TIMER_COUNT-1)*sizeof(hnt_timer_group_param_t));        
+    memset(&(wait_timer_param2->group[0]), 0, (MAX_TIMER_COUNT-1)*sizeof(hnt_timer_group_param_t));        
     min_wait_second2  = 0;
     log_debug("test\n");
 
@@ -1532,7 +1532,7 @@ hnt_platform_timer_start2(char *pbuffer)
     timestamp = atoi(temp_str);
     wait_timer_param2->timestamp = get_current_time();
 
-    os_memset(temp_str, 0, sizeof(temp_str));
+    memset(temp_str, 0, sizeof(temp_str));
     json_get_value(pbuffer, "type", temp_str, sizeof(temp_str) - 1);
     log_debug("test:temp_str = %s\n", temp_str);
     if(temp_str[0] == 'f')
@@ -1548,7 +1548,7 @@ hnt_platform_timer_start2(char *pbuffer)
     }
     log_debug("test\n");
 
-    os_memset(temp_str, 0, sizeof(temp_str));
+    memset(temp_str, 0, sizeof(temp_str));
     json_get_value(pbuffer, "enable", temp_str, sizeof(temp_str) - 1);
     log_debug("test:temp_str = %s\n", temp_str);
     count = split(temp_str , ";" , timer_splits);
@@ -1573,7 +1573,7 @@ hnt_platform_timer_start2(char *pbuffer)
         free(timer_splits[i]);
     }
     
-    os_memset(temp_str, 0, sizeof(temp_str));
+    memset(temp_str, 0, sizeof(temp_str));
     json_get_value(pbuffer, "on", temp_str, sizeof(temp_str) - 1);
     log_debug("test:temp_str = %s\n", temp_str);
     count = split(temp_str , ";" , timer_splits);
@@ -1609,7 +1609,7 @@ hnt_platform_timer_start2(char *pbuffer)
     }
     log_debug("test\n");
 
-    os_memset(temp_str, 0, sizeof(temp_str));
+    memset(temp_str, 0, sizeof(temp_str));
     json_get_value(pbuffer, "off", temp_str, sizeof(temp_str) - 1);
     log_debug("test:temp_str = %s\n", temp_str);
     count = split(temp_str , ";" , timer_splits);
@@ -1648,7 +1648,7 @@ hnt_platform_timer_start2(char *pbuffer)
     }
     log_debug("test\n");
 #if HNT_TIMER_WEEK_SUPPORT
-    os_memset(temp_str, 0, sizeof(temp_str));
+    memset(temp_str, 0, sizeof(temp_str));
     json_get_value(pbuffer, "weekday", temp_str, sizeof(temp_str) - 1);
     log_debug("test:temp_str = %s\n", temp_str);
     count = split(temp_str , ";" , timer_splits);
@@ -1689,7 +1689,7 @@ hnt_platform_timer_get2(char *buffer)
         return;
         
     struct hnt_mgmt_saved_param param;
-    os_memset(&param, 0, sizeof(param));
+    memset(&param, 0, sizeof(param));
     hnt_mgmt_load_param(&param);
     
     len = snprintf(buffer, sizeof(buffer), "{\"type\":\"w\",\"timestamp\":\"%d\",\"enable\":\"",
@@ -1803,16 +1803,16 @@ hnt_platform_timer_init(void)
         return;
        
     struct hnt_mgmt_saved_param param;
-    os_memset(&param, 0, sizeof(param));
+    memset(&param, 0, sizeof(param));
     hnt_mgmt_load_param(&param);
 
-    wait_timer_param = (hnt_platform_wait_timer_param_t *)os_zalloc(sizeof(hnt_platform_wait_timer_param_t));
-    os_memset(wait_timer_param, 0, sizeof(hnt_platform_wait_timer_param_t));        
+    wait_timer_param = (hnt_platform_wait_timer_param_t *)zalloc(sizeof(hnt_platform_wait_timer_param_t));
+    memset(wait_timer_param, 0, sizeof(hnt_platform_wait_timer_param_t));        
     min_wait_second  = 0;
     wait_timer_param->timestamp = get_current_time();    
     wait_timer_param->type = TIMER_TYPE_LOOP_WEEK;
     wait_timer_param->saveTimestamp = param.saveTimestamp;    
-    os_memcpy(wait_timer_param->group, param.group, sizeof(wait_timer_param->group));
+    memcpy(wait_timer_param->group, param.group, sizeof(wait_timer_param->group));
 
     if((wait_timer_param->group[NIGHTMODE_GROUP_INDEX].enable != NIGHT_MODE_NORMAL) &&
         (wait_timer_param->group[NIGHTMODE_GROUP_INDEX].enable != NIGHT_MODE_CLOSE) &&
@@ -1832,13 +1832,13 @@ hnt_platform_timer_init(void)
     if(wait_timer_param2 != NULL)    
         return;
 
-    wait_timer_param2 = (hnt_platform_wait_timer_param_t *)os_zalloc(sizeof(hnt_platform_wait_timer_param_t));
-    os_memset(wait_timer_param2, 0, sizeof(hnt_platform_wait_timer_param_t));        
+    wait_timer_param2 = (hnt_platform_wait_timer_param_t *)zalloc(sizeof(hnt_platform_wait_timer_param_t));
+    memset(wait_timer_param2, 0, sizeof(hnt_platform_wait_timer_param_t));        
     min_wait_second2  = 0;
     wait_timer_param2->timestamp = get_current_time();    
     wait_timer_param2->type = TIMER_TYPE_LOOP_WEEK;
     wait_timer_param2->saveTimestamp = param.saveTimestamp2;    
-    os_memcpy(wait_timer_param2->group, param.group2, sizeof(wait_timer_param2->group));
+    memcpy(wait_timer_param2->group, param.group2, sizeof(wait_timer_param2->group));
 #endif
 }
 

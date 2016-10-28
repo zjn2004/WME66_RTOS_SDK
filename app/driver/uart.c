@@ -423,13 +423,4 @@ uart_init_new(void)
     UART_SetPrintPort(UART0);
     UART_intr_handler_register(uart0_rx_intr_handler, NULL);
     ETS_UART_INTR_ENABLE();
-
-    /*
-    UART_SetWordLength(UART0,UART_WordLength_8b);
-    UART_SetStopBits(UART0,USART_StopBits_1);
-    UART_SetParity(UART0,USART_Parity_None);
-    UART_SetBaudrate(UART0,74880);
-    UART_SetFlowCtrl(UART0,USART_HardwareFlowControl_None,0);
-    */
-
 }

@@ -85,7 +85,7 @@ io_connect (iksparser *prs, void **socketptr, const char *server, int port)
 	host = gethostbyname (server);
 	if (!host) return IKS_NET_NODNS;
 
-	os_memcpy (&sin.sin_addr, host->h_addr, host->h_length);
+	memcpy (&sin.sin_addr, host->h_addr, host->h_length);
 	sin.sin_family = host->h_addrtype;
 	sin.sin_port = htons (port);
 	sock = socket (host->h_addrtype, SOCK_STREAM, 0);

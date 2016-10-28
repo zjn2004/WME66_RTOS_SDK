@@ -33,7 +33,7 @@ iks_filter_new (void)
 
 	f = iks_malloc (sizeof (iksfilter));
 	if (!f) return NULL;
-	os_memset (f, 0, sizeof (iksfilter));
+	memset (f, 0, sizeof (iksfilter));
 
 	return f;
 }
@@ -56,11 +56,11 @@ iks_filter_add_rule (iksfilter *f, iksFilterHook *filterHook, void *user_data,
 	s = iks_stack_new (sizeof (iksrule), DEFAULT_RULE_CHUNK_SIZE);
 	if (!s) return NULL;
 	rule = iks_stack_alloc (s, sizeof (iksrule));
-	os_memset (rule, 0, sizeof (iksrule));
+	memset (rule, 0, sizeof (iksrule));
 	rule->s = s;
 	rule->user_data = user_data;
 	rule->filterHook = filterHook;
-    log_debug("filterHook:%p\n", filterHook);
+    printf("filterHook:%p\n", filterHook);
     
 	for (i = 0; i < 6; i++)	{
 		iter_type = (filter_type & (1<<i));
@@ -127,7 +127,7 @@ iks_filter_packet (iksfilter *f, ikspak *pak)
 	max_rule = NULL;
 	max_score = 0;
 	while (rule) {
-        log_debug("filterHook:%p\n", rule->filterHook);
+        printf("filterHook:%p\n", rule->filterHook);
 		score = 0;
 		fail = 0;
 		if (rule->rules & IKS_RULE_TYPE) {

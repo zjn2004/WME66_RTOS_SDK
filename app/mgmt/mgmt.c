@@ -18,8 +18,7 @@
 #include "espconn.h"
 #include "mgmt/mgmt.h"
 #include "mgmt/welcome.h"
-//#include "version.h"
-//#include "iksemel/iksemel.h"
+#include "iksemel/iksemel.h"
 
 struct hnt_factory_param g_hnt_factory_param;
 #if 1//def HNT_PTO_SUPPORT
@@ -209,11 +208,11 @@ hnt_mgmt_factory_init(struct hnt_mgmt_factory_param *factory_param)
     int i;
 #endif
     
-    os_memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
+    memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
     if(factory_param == NULL)
         hnt_mgmt_load_factory_param(&tmp_factory_param);
     else
-        os_memcpy(&tmp_factory_param, factory_param, sizeof(struct hnt_mgmt_factory_param));
+        memcpy(&tmp_factory_param, factory_param, sizeof(struct hnt_mgmt_factory_param));
 
     log_debug("test:device_type = %s\n", tmp_factory_param.device_type);
     log_debug("test:device_id = %s\n", tmp_factory_param.device_id);
@@ -230,12 +229,13 @@ hnt_mgmt_factory_init(struct hnt_mgmt_factory_param *factory_param)
                     tmp_factory_param.pto_info[2], 
                     tmp_factory_param.pto_info[3]);
 #endif
+
     if (tmp_factory_param.device_type[0] != 0xFF)
         g_hnt_factory_param.device_type = atoi(tmp_factory_param.device_type);
     else
         return -1;
 
-            #if 0
+            
     if (tmp_factory_param.device_id[0] != 0xFF)
     {
         tmp_factory_param.device_id[DEVICEINFO_STRING_LEN - 1] = '\0';
@@ -275,67 +275,19 @@ hnt_mgmt_factory_init(struct hnt_mgmt_factory_param *factory_param)
     }
     else
         return -1;
-        
+    
+#if 0        
     if (tmp_factory_param.wlan_mac[0] != 0xFF)
     {
-        os_memcpy(g_hnt_factory_param.wlan_mac, tmp_factory_param.wlan_mac, 6);
+        memcpy(g_hnt_factory_param.wlan_mac, tmp_factory_param.wlan_mac, 6);
     }
     else
         return -1;
-
-#if 1//def HNT_PTO_SUPPORT
-    if(pto_enable == 1)
-    {
-        INT_TO_BYTE(system_get_chip_id(), pto_info[0], pto_info[1], pto_info[2], pto_info[3]);
-        log_debug("pto_info = %02x:%02x:%02x:%02x\n", pto_info[0],pto_info[1], pto_info[2], pto_info[3]);    
-        log_debug("rest  = %02x:%02x:%02x:%02x\n", pto_info[0]^ PTO_INFO_MAGIC,
-                        pto_info[1]^ PTO_INFO_MAGIC, pto_info[2]^ PTO_INFO_MAGIC, pto_info[3]^ PTO_INFO_MAGIC);    
-        for(i = 0; i < 4; i++)
-        {        
-            if((pto_info[i] ^ PTO_INFO_MAGIC) != tmp_factory_param.pto_info[i])
-            {
-               return -1;
-            }
-        }
-    }
 #endif
-    #endif
+
     return 0;    
 }   
 
-
-#define AP_CACHE 0
-#define AP_CACHE_NUMBER 5
-#if AP_CACHE
-/******************************************************************************
- * FunctionName : hnt_mgmt_platform_ap_change
- * Description  : add the user interface for changing to next ap ID.
- * Parameters   :
- * Returns      : none
-*******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
-hnt_mgmt_platform_ap_change(void)
-{
-    uint8 current_id;
-
-    log_debug("user_esp_platform_ap_is_changing\n");
-
-
-    current_id = wifi_station_get_current_ap_id();
-    log_debug("current ap id =%d\n", current_id);
-
-    if (current_id == AP_CACHE_NUMBER - 1) {
-        wifi_station_ap_change(0);
-    } else {
-        wifi_station_ap_change(current_id + 1);
-    }
-
-    /* just need to re-check ip while change AP */
-    os_timer_disarm(&client_timer);
-    os_timer_setfn(&client_timer, (os_timer_func_t *)hnt_mgmt_platform_check_ip, NULL);
-    os_timer_arm(&client_timer, 100, 0);
-}
-#endif
 
 bool ICACHE_FLASH_ATTR
 hnt_mgmt_platform_reset_mode(void)
@@ -343,14 +295,6 @@ hnt_mgmt_platform_reset_mode(void)
     if (wifi_get_opmode() == STATION_MODE) {
         wifi_set_opmode(STATIONAP_MODE);
     }
-#if AP_CACHE
-    /* delay 5s to change AP */
-    os_timer_disarm(&client_timer);
-    os_timer_setfn(&client_timer, (os_timer_func_t *)hnt_mgmt_platform_ap_change, NULL);
-    os_timer_arm(&client_timer, 5000, 0);
-
-    return true;
-#endif
 
     return false;
 }

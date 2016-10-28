@@ -700,9 +700,6 @@ hnt_mgmt_anti_copy_enable(uint8_t enable);
 void 
 hnt_onbd_start(void );
 
-void 
-hnt_xmppcli_start(void);
-
 #define    HNT_XMPP_PATH_FLAG_NORMAL    (0)
 #define    HNT_XMPP_PATH_FLAG_HISTORY   (1<<0)
 #define    HNT_XMPP_PATH_FLAG_ALARM     (1<<1)
@@ -800,11 +797,9 @@ hnt_platform_night_mode_set(char *buff);
 
 int 
 hnt_platform_night_mode_get(char *buff);
-#define printf os_printf
-#define sprintf os_sprintf
-//#define os_memset os_memset
-//#define os_memcpy os_memcpy
-#define strcmp os_strcmp
+//#define printf os_printf
+//#define sprintf os_sprintf
+//#define strcmp os_strcmp
 #define random os_random
 #define snprintf(A, B, C...) sprintf(A, ##C)    
 
@@ -860,7 +855,7 @@ hnt_platform_night_mode_get(char *buff);
 #endif
 //#define ENABLE_HTTPS 1
 //#define CLIENT_SSL_ENABLE 1
-#define HAVE_TLS 1
+//#define HAVE_TLS 1
 //#define DLMPD_SUPPORT 1
 
 #endif

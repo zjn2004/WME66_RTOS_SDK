@@ -19,7 +19,7 @@ iks_id_new (ikstack *s, const char *jid)
 	if (!jid) return NULL;
 	id = iks_stack_alloc (s, sizeof (iksid));
 	if (!id) return NULL;
-	os_memset (id, 0, sizeof (iksid));
+	memset (id, 0, sizeof (iksid));
 
 	/* skip scheme */
 	if (strncmp ("jabber:", jid, 7) == 0) jid += 7;
@@ -75,7 +75,7 @@ iks_packet (iks *x)
 	s = iks_stack (x);
 	pak = iks_stack_alloc (s, sizeof (ikspak));
 	if (!pak) return NULL;
-	os_memset (pak, 0, sizeof (ikspak));
+	memset (pak, 0, sizeof (ikspak));
 	pak->x = x;
 	tmp = iks_find_attrib (x, "from");
 	if (tmp) pak->from = iks_id_new (s, tmp);

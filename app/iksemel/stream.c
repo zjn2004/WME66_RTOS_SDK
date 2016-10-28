@@ -250,7 +250,7 @@ iks_stream_new (char *name_space, void *user_data, iksStreamHook *streamHook)
 	s = iks_stack_new (DEFAULT_STREAM_CHUNK_SIZE, 0);
 	if (NULL == s) return NULL;
 	data = iks_stack_alloc (s, sizeof (struct stream_data));
-	os_memset (data, 0, sizeof (struct stream_data));
+	memset (data, 0, sizeof (struct stream_data));
 	data->s = s;
 	data->prs = iks_sax_extend (s, data, (iksTagHook *)tagHook, (iksCDataHook *)cdataHook, (iksDeleteHook *)deleteHook);
 	data->name_space = name_space;
@@ -519,6 +519,7 @@ iks_start_sasl (iksparser *prs, enum ikssasltype type, char *username, char *pas
 
 			iks_insert_attrib (x, "mechanism", "PLAIN");
 			sprintf (s, "%c%s%c%s", 0, username, 0, pass);
+            printf("Before base64:[%s]\n",s);
 			base64 = iks_base64_encode (s, len);
 			iks_insert_cdata (x, base64, 0);
 			iks_free (base64);

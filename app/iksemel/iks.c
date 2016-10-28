@@ -75,7 +75,7 @@ iks_new_within (const char *name, ikstack *s)
 	if (name) len = sizeof (struct iks_tag); else len = sizeof (struct iks_cdata);
 	x = iks_stack_alloc (s, len);
 	if (!x) return NULL;
-	os_memset (x, 0, len);
+	memset (x, 0, len);
 	x->s = s;
 	x->type = IKS_TAG;
 	if (name) {
@@ -143,7 +143,7 @@ iks_insert_attrib (iks *x, const char *name, const char *value)
 		if (!value) return NULL;
 		y = iks_stack_alloc (x->s, sizeof (struct iks_attrib));
 		if (!y) return NULL;
-		os_memset (y, 0, sizeof (struct iks_attrib));
+		memset (y, 0, sizeof (struct iks_attrib));
 		y->type = IKS_ATTRIBUTE;
 		y->s = x->s;
 		IKS_ATTRIB_NAME (y) = iks_stack_strdup (x->s, name, 0);
@@ -579,7 +579,7 @@ static char * ICACHE_FLASH_ATTR
 my_strcat (char *dest, char *src, size_t len)
 {
 	if (0 == len) len = strlen (src);
-	os_memcpy (dest, src, len);
+	memcpy (dest, src, len);
 	return dest + len;
 }
 
@@ -623,7 +623,7 @@ iks_string (ikstack *s, iks *x)
 			return iks_stack_strdup (s, IKS_CDATA_CDATA (x), IKS_CDATA_LEN (x));
 		} else {
 			ret = iks_malloc (IKS_CDATA_LEN (x));
-			os_memcpy (ret, IKS_CDATA_CDATA (x), IKS_CDATA_LEN (x));
+			memcpy (ret, IKS_CDATA_CDATA (x), IKS_CDATA_LEN (x));
 			return ret;
 		}
 	}

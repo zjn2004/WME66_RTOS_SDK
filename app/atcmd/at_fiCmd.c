@@ -80,7 +80,7 @@ at_queryCmdCfstamac(uint8_t id)
     char temp[64];
 
     struct hnt_mgmt_factory_param tmp_factory_param;   
-    os_memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
+    memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
     hnt_mgmt_load_factory_param(&tmp_factory_param);
   
     os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
@@ -118,10 +118,10 @@ at_setupCmdCfstamac(uint8_t id, char *pPara)
  
   log_debug(MACSTR"\r\n", MAC2STR(bssid));
 
-  os_memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
+  memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
   hnt_mgmt_load_factory_param(&tmp_factory_param);
 
-  os_memcpy(tmp_factory_param.wlan_mac, bssid, 6);
+  memcpy(tmp_factory_param.wlan_mac, bssid, 6);
   hnt_mgmt_save_factory_param(&tmp_factory_param);
 
 	at_backOk;
@@ -133,7 +133,7 @@ at_queryCmdCfdevicetype(uint8_t id)
     char temp[128];
 
     struct hnt_mgmt_factory_param tmp_factory_param;   
-    os_memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
+    memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
     hnt_mgmt_load_factory_param(&tmp_factory_param);
   
     os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
@@ -163,11 +163,11 @@ at_setupCmdCfdevicetype(uint8_t id, char *pPara)
 
   log_debug("%s\r\n", temp);
 
-  os_memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
+  memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
   hnt_mgmt_load_factory_param(&tmp_factory_param);
 
-  os_memset(tmp_factory_param.device_type, 0, DEVICEINFO_STRING_LEN);
-  os_memcpy(tmp_factory_param.device_type, temp, len);
+  memset(tmp_factory_param.device_type, 0, DEVICEINFO_STRING_LEN);
+  memcpy(tmp_factory_param.device_type, temp, len);
   tmp_factory_param.device_type[len] = '\0';  
   hnt_mgmt_save_factory_param(&tmp_factory_param);
 
@@ -180,7 +180,7 @@ at_queryCmdCfdeviceid(uint8_t id)
     char temp[128];
 
     struct hnt_mgmt_factory_param tmp_factory_param;   
-    os_memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
+    memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
     hnt_mgmt_load_factory_param(&tmp_factory_param);
   
     os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
@@ -210,10 +210,10 @@ at_setupCmdCfdeviceid(uint8_t id, char *pPara)
 
   log_debug("%s\r\n", temp);
 
-  os_memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
+  memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
   hnt_mgmt_load_factory_param(&tmp_factory_param);
 
-  os_memcpy(tmp_factory_param.device_id, temp, len);
+  memcpy(tmp_factory_param.device_id, temp, len);
   tmp_factory_param.device_id[len] = '\0';
   hnt_mgmt_save_factory_param(&tmp_factory_param);
 
@@ -226,7 +226,7 @@ at_queryCmdCfpassword(uint8_t id)
     char temp[128];
 
     struct hnt_mgmt_factory_param tmp_factory_param;   
-    os_memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
+    memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
     hnt_mgmt_load_factory_param(&tmp_factory_param);
   
     os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
@@ -256,10 +256,10 @@ at_setupCmdCfpassword(uint8_t id, char *pPara)
 
   log_debug("%s\r\n", temp);
 
-  os_memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
+  memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
   hnt_mgmt_load_factory_param(&tmp_factory_param);
 
-  os_memcpy(tmp_factory_param.password, temp, len);
+  memcpy(tmp_factory_param.password, temp, len);
   tmp_factory_param.password[len] = '\0';
   hnt_mgmt_save_factory_param(&tmp_factory_param);
 
@@ -272,7 +272,7 @@ at_queryCmdCfxmppserver(uint8_t id)
     char temp[128];
 
     struct hnt_mgmt_factory_param tmp_factory_param;   
-    os_memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
+    memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
     hnt_mgmt_load_factory_param(&tmp_factory_param);
   
     os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
@@ -302,10 +302,10 @@ at_setupCmdCfxmppserver(uint8_t id, char *pPara)
 
   log_debug("%s\r\n", temp);
 
-  os_memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
+  memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
   hnt_mgmt_load_factory_param(&tmp_factory_param);
 
-  os_memcpy(tmp_factory_param.xmpp_server, temp, len);
+  memcpy(tmp_factory_param.xmpp_server, temp, len);
   tmp_factory_param.xmpp_server[len] = '\0';
   hnt_mgmt_save_factory_param(&tmp_factory_param);
 
@@ -318,7 +318,7 @@ at_queryCmdCfxmppjid(uint8_t id)
     char temp[128];
 
     struct hnt_mgmt_factory_param tmp_factory_param;   
-    os_memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
+    memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
     hnt_mgmt_load_factory_param(&tmp_factory_param);
   
     os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
@@ -348,10 +348,10 @@ at_setupCmdCfxmppjid(uint8_t id, char *pPara)
 
   log_debug("%s\r\n", temp);
 
-  os_memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
+  memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
   hnt_mgmt_load_factory_param(&tmp_factory_param);
 
-  os_memcpy(tmp_factory_param.xmpp_jid, temp, len);
+  memcpy(tmp_factory_param.xmpp_jid, temp, len);
   tmp_factory_param.xmpp_jid[len] = '\0';
   hnt_mgmt_save_factory_param(&tmp_factory_param);
 
@@ -364,7 +364,7 @@ at_queryCmdCfxmpppwd(uint8_t id)
     char temp[128];
 
     struct hnt_mgmt_factory_param tmp_factory_param;   
-    os_memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
+    memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
     hnt_mgmt_load_factory_param(&tmp_factory_param);
   
     os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
@@ -394,10 +394,10 @@ at_setupCmdCfxmpppwd(uint8_t id, char *pPara)
 
   log_debug("%s\r\n", temp);
 
-  os_memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
+  memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
   hnt_mgmt_load_factory_param(&tmp_factory_param);
 
-  os_memcpy(tmp_factory_param.xmpp_password, temp, len);
+  memcpy(tmp_factory_param.xmpp_password, temp, len);
   tmp_factory_param.xmpp_password[len] = '\0';
   hnt_mgmt_save_factory_param(&tmp_factory_param);
 
@@ -411,7 +411,7 @@ at_queryCmdCfptoinfo(uint8_t id)
 #if 1//def HNT_PTO_SUPPORT
 
     struct hnt_mgmt_factory_param tmp_factory_param;   
-    os_memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
+    memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
     hnt_mgmt_load_factory_param(&tmp_factory_param);
   
     os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
@@ -457,10 +457,10 @@ at_setupCmdCfptoinfo(uint8_t id, char *pPara)
 
   log_debug("%s\r\n", temp);
 
-  os_memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
+  memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
   hnt_mgmt_load_factory_param(&tmp_factory_param);
 
-  os_memcpy(tmp_factory_param.pto_info, pto_info, 4);
+  memcpy(tmp_factory_param.pto_info, pto_info, 4);
   hnt_mgmt_save_factory_param(&tmp_factory_param);
 #endif
 	at_backOk;
@@ -472,7 +472,7 @@ at_queryCmdCfdeviceinfo(uint8_t id)
     char temp[128];
 
     struct hnt_mgmt_factory_param tmp_factory_param;   
-    os_memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
+    memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
     hnt_mgmt_load_factory_param(&tmp_factory_param);
   
     os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
@@ -525,7 +525,7 @@ at_CfdeviceinfoInternal(char *temp)
   
   log_debug("%s\r\n", temp);
 
-  os_memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
+  memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
   hnt_mgmt_load_factory_param(&tmp_factory_param);
 
   start = end = temp;
@@ -534,8 +534,8 @@ at_CfdeviceinfoInternal(char *temp)
   if(end-start > DEVICEINFO_STRING_LEN)
     return;
   
-  os_memset(tmp_factory_param.device_type, 0, sizeof(tmp_factory_param.device_type));
-  os_memcpy(tmp_factory_param.device_type, start, end-start);
+  memset(tmp_factory_param.device_type, 0, sizeof(tmp_factory_param.device_type));
+  memcpy(tmp_factory_param.device_type, start, end-start);
 
   while(*end == ' ')end++;
 
@@ -543,22 +543,22 @@ at_CfdeviceinfoInternal(char *temp)
   while((*end != ' ') && (*end != '\0'))end++;
   if(end-start > DEVICEINFO_STRING_LEN)
     return;
-  os_memset(tmp_factory_param.device_id, 0, sizeof(tmp_factory_param.device_id));
-  os_memcpy(tmp_factory_param.device_id, start, end-start);
+  memset(tmp_factory_param.device_id, 0, sizeof(tmp_factory_param.device_id));
+  memcpy(tmp_factory_param.device_id, start, end-start);
 
   while(*end == ' ')end++;
   start = end;
   while((*end != ' ') && (*end != '\0'))end++;
   if(end-start > DEVICEINFO_STRING_LEN)
     return;
-  os_memset(tmp_factory_param.password, 0, sizeof(tmp_factory_param.password));
-  os_memcpy(tmp_factory_param.password, start, end-start);
+  memset(tmp_factory_param.password, 0, sizeof(tmp_factory_param.password));
+  memcpy(tmp_factory_param.password, start, end-start);
 
   while(*end == ' ')end++;
   start = end;
   while((*end != ' ') && (*end != '\0'))end++;
-  os_memset(tmp_factory_param.xmpp_server, 0, sizeof(tmp_factory_param.xmpp_server));
-  os_memcpy(tmp_factory_param.xmpp_server, start, end-start);
+  memset(tmp_factory_param.xmpp_server, 0, sizeof(tmp_factory_param.xmpp_server));
+  memcpy(tmp_factory_param.xmpp_server, start, end-start);
 
 #if 0
   while(*end == ' ')end++;
@@ -566,8 +566,8 @@ at_CfdeviceinfoInternal(char *temp)
   while((*end != ' ') && (*end != '\0'))end++;
   if(end-start > DEVICEINFO_STRING_LEN)
     return;
-  os_memset(tmp_factory_param.xmpp_jid, 0, sizeof(tmp_factory_param.xmpp_jid));
-  os_memcpy(tmp_factory_param.xmpp_jid, start, end-start);
+  memset(tmp_factory_param.xmpp_jid, 0, sizeof(tmp_factory_param.xmpp_jid));
+  memcpy(tmp_factory_param.xmpp_jid, start, end-start);
 #endif
 
   while(*end == ' ')end++;
@@ -575,16 +575,16 @@ at_CfdeviceinfoInternal(char *temp)
   while((*end != ' ') && (*end != '\0'))end++;
   if(end-start > DEVICEINFO_STRING_LEN)
     return;
-  os_memset(tmp_factory_param.xmpp_password, 0, sizeof(tmp_factory_param.xmpp_password));
-  os_memcpy(tmp_factory_param.xmpp_password, start, end-start);
+  memset(tmp_factory_param.xmpp_password, 0, sizeof(tmp_factory_param.xmpp_password));
+  memcpy(tmp_factory_param.xmpp_password, start, end-start);
 
   while(*end == ' ')end++;
   start = end;
   while((*end != ' ') && (*end != '\0'))end++;
   if(end-start > DEVICEINFO_STRING_LEN)
     return;
-  os_memset(mac, 0, sizeof(mac));
-  os_memcpy(mac, start, end-start);
+  memset(mac, 0, sizeof(mac));
+  memcpy(mac, start, end-start);
   pPara = mac;
   for(i=0;i<6;i++)
   {
@@ -598,11 +598,11 @@ at_CfdeviceinfoInternal(char *temp)
   end = os_strchr(start, '@');
   if((end == NULL) || (end-start > DEVICEINFO_STRING_LEN))
     return;
-  os_memset(tmp_factory_param.device_id, 0, sizeof(tmp_factory_param.device_id));
-  os_memcpy(tmp_factory_param.device_id, start, end-start);
+  memset(tmp_factory_param.device_id, 0, sizeof(tmp_factory_param.device_id));
+  memcpy(tmp_factory_param.device_id, start, end-start);
 #endif
 
-  os_memset(tmp_factory_param.xmpp_jid, 0, sizeof(tmp_factory_param.xmpp_jid));
+  memset(tmp_factory_param.xmpp_jid, 0, sizeof(tmp_factory_param.xmpp_jid));
   tmp_factory_param.xmpp_jid[0] = 'd';
   os_strcpy(&tmp_factory_param.xmpp_jid[1], tmp_factory_param.device_id);
   os_strcpy(&tmp_factory_param.xmpp_jid[os_strlen(tmp_factory_param.xmpp_jid)], "@seaing.net");
@@ -695,7 +695,7 @@ gpio_test_error_msg(int out_pin, int input_pin, int value)
 {
     char temp[64];
 
-    os_memset(temp, 0, sizeof(temp));
+    memset(temp, 0, sizeof(temp));
     os_sprintf(temp, "error %d->%d(%d)\r\n", out_pin, input_pin, value);
     uart0_sendStr(temp);                
 }
@@ -915,7 +915,7 @@ at_queryCmdSwitch(uint8_t id)
     os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
     uart0_sendStr(temp);
     
-    os_memset(buffer, 0, sizeof(buffer));
+    memset(buffer, 0, sizeof(buffer));
     eSmartPlugGetSwitchStatus(NULL, buffer, sizeof(buffer));
     os_sprintf(temp, "\"%s\"\r\n", buffer);
     uart0_sendStr(temp);
@@ -958,11 +958,11 @@ at_queryCmdDebugTest(uint8_t id)
     uart0_sendStr(temp);
 #if 0//PROFILE_SMARTPLUG
     
-    os_memset(buffer, 0, sizeof(buffer));
+    memset(buffer, 0, sizeof(buffer));
     eSmartPlugGetTimer(NULL, buffer, sizeof(buffer));
     os_sprintf(temp, "\"%s\"\r\n", buffer);
     uart0_sendStr(temp);
-    os_memset(buffer, 0, sizeof(buffer));
+    memset(buffer, 0, sizeof(buffer));
     eSmartPlugGetWelcome(NULL, buffer, sizeof(buffer));
     os_sprintf(temp, "\"%s\"\r\n", buffer);
     uart0_sendStr(temp);
@@ -992,7 +992,7 @@ at_setupCmdDebugTest(uint8_t id, char *pPara)
   log_debug("%s\r\n", temp);
   eSmartPlugSetTimer(NULL, temp);
 
-  os_memset(temp, 0, sizeof(temp));
+  memset(temp, 0, sizeof(temp));
   os_strcpy(temp, "{\"mode\": \"1\", \"mac\":\"0c:1d:af:da:f8:0a\"}");
   welcome_path_handle(pPara);
 
