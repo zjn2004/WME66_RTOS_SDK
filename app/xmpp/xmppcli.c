@@ -5,15 +5,14 @@
 */
 #include "esp_common.h" 
 
-
-
-#include "espconn.h"
+#include "iksemel/iksemel.h"
 #include "xmpp/xmppcli.h"
 #include "xmpp/xmppcli_cwmp.h"
-#include "iksemel/iksemel.h"
 #include "mgmt/mgmt.h"
 #include "mgmt/timer.h"
 #include "hnt_interface.h"
+#include "lwip/sockets.h"
+#include "lwip/netdb.h"
 
 extern struct hnt_factory_param g_hnt_factory_param;
 extern customInfo_t *DeviceCustomInfo;
@@ -38,36 +37,13 @@ uint8 opt_use_tls = 0;
 uint8 opt_use_sasl = 1;
 uint8 opt_use_plain = 1;
 
-/* stuff we keep per session */
-struct session {
-    struct espconn *pespconn; 
-    /* out packet filter */
-    iksfilter *filter;  
-	iksparser *prs;
-	iksid *acc;
-	char *pass;
-	char *bound_jid;
-	int features;
-	int authorized;
-	os_timer_t xmpp_inform_timer;
-	os_timer_t xmpp_sampling_timer;
-	os_timer_t xmpp_ping_timer;
-	os_timer_t xmpp_pong_timer;
-	int ping_timeout_times;
-};
-
 int 
 xmpp_send_raw(struct session *sess, char *data, size_t size);
-LOCAL void 
-user_xmppclient_dns_found(const char *name, ip_addr_t *ipaddr, void *arg);
-LOCAL void 
-user_xmppclient_connect(struct espconn *pespconn);
 int 
 user_xmppclient_stop(void);
 
 struct session sess;
-LOCAL struct espconn XMPPClientEspconn;
-LOCAL struct _esp_tcp xmpp_tcp;
+
 LOCAL ip_addr_t xmpp_server_ip;
 LOCAL uint8 xmpp_conn_status = 0;
 
@@ -261,7 +237,7 @@ xmpp_tls_connect_cb(void *arg)
 
     log_debug("xmpp_tls_connect_cb\n");
 
-    xmpp_send_header(pespconn);   
+    xmpp_send_header();   
 }
 static int ICACHE_FLASH_ATTR
 handshake (struct stream_data *data)
@@ -470,35 +446,33 @@ xmpp_send(iks *x)
 int ICACHE_FLASH_ATTR
 xmpp_send_raw(struct session *sess, char *data, size_t size)
 {
+    int ret;
+
     log_debug("system_get_free_heap_size = %d, size = %d\n", system_get_free_heap_size(), size); 
 
-    if (iks_is_secure(sess->prs))
-#ifdef HAVE_TLS
-        espconn_secure_sent(sess->pespconn, data, size);
-#else
-        espconn_sent(sess->pespconn, data, size);
-#endif
-    else
-#ifdef CLIENT_SSL_ENABLE
-        espconn_secure_sent(sess->pespconn, data, size);
-#else
-        espconn_sent(sess->pespconn, data, size);
-#endif
-
+    if (iks_is_secure(sess->prs)){
+        send(sess->xmpp_sock, data, size,0);
+    }
+    else{
+        ret = send(sess->xmpp_sock, data, size, 0);
+        if(ret < 0) {
+            printf("send failed, ret=%d\n", ret);
+        }
+    }
     log_debug("test\n");
 
     return IKS_OK;
 }
 
 int ICACHE_FLASH_ATTR
-xmpp_send_header(struct espconn *pespconn)
+xmpp_send_header(void)
 {
     return iks_send_header(sess.prs, sess.acc->server);
 }
 
 
 void ICACHE_FLASH_ATTR
-xmpp_connect (void *pespconn, char *jabber_id, char *pass)
+xmpp_connect (int xmpp_socket, char *jabber_id, char *pass)
 {
 	int e;
 
@@ -506,7 +480,7 @@ xmpp_connect (void *pespconn, char *jabber_id, char *pass)
     log_debug("system_get_free_heap_size = %d\n", system_get_free_heap_size()); 
 	sess.prs = iks_stream_new (IKS_NS_CLIENT, &sess, (iksStreamHook *) xmpp_stream_handler);
     log_debug("system_get_free_heap_size = %d\n", system_get_free_heap_size()); 
-	sess.pespconn = (struct espconn *)pespconn;
+	sess.xmpp_sock = xmpp_socket;
 	if (opt_log) iks_set_log_hook (sess.prs, (iksLogHook *) on_log);
 	iks_set_send_hook(sess.prs, (iksSendHook *) xmpp_send_raw);
     log_debug("system_get_free_heap_size = %d\n", system_get_free_heap_size()); 
@@ -584,27 +558,19 @@ user_xmppclient_disconnect (void)
  * Returns      : none
 *******************************************************************************/
 LOCAL void ICACHE_FLASH_ATTR
-user_xmppclient_discon(struct espconn *pespconn)
+user_xmppclient_discon(void)
 {
     sint8 ret;
     log_debug("test\n");
     xmpp_conn_status = 0;
-#ifdef CLIENT_SSL_ENABLE
-    espconn_secure_disconnect(pespconn);
-#else 
-    if (sess.prs && iks_is_secure(sess.prs))
-#ifdef HAVE_TLS
-    espconn_secure_disconnect(pespconn);
-#else
-    espconn_disconnect(pespconn);
-#endif   
-#endif
+
+//    espconn_disconnect(pespconn);
 }
 
 void ICACHE_FLASH_ATTR
 user_xmppclient_restart_cb(void)
 {
-    user_xmppclient_discon(&XMPPClientEspconn);
+    user_xmppclient_discon();
     user_xmppclient_disconnect();   
 
     wifi_led_status_action(WIFI_LED_STATUS_CONNECTING_TO_AP);    
@@ -620,10 +586,11 @@ user_xmppclient_restart(void)
 int ICACHE_FLASH_ATTR
 user_xmppclient_stop(void)
 {
-    user_xmppclient_discon(&XMPPClientEspconn);
+    user_xmppclient_discon();
     user_xmppclient_disconnect();   
 }
 
+#if 0
 /******************************************************************************
  * FunctionName : user_esp_platform_discon_cb
  * Description  : disconnect successfully with the host
@@ -819,6 +786,70 @@ user_xmppclient_start_dns(struct espconn *pespconn)
     }
     
 }
+#endif
+
+int xmpp_sock = -1;
+#define XMPP_PORT	5222
+
+int xmpp_start(void)
+{
+	struct sockaddr_in* sin;
+	struct hostent* HostEntry;
+        
+    sin = (struct sockaddr_in*)malloc(sizeof(struct sockaddr_in));
+    
+	memset(sin, 0, sizeof(struct sockaddr));
+	sin->sin_family = AF_INET;                 
+    for(;;) {
+        printf("gethostbyname %s\n",g_hnt_factory_param.xmpp_server);
+        
+        HostEntry = gethostbyname(g_hnt_factory_param.xmpp_server);
+        printf("HostEntry %p\n",HostEntry);
+        
+        if(HostEntry)
+        {
+            memcpy(&sin->sin_addr.s_addr, HostEntry->h_addr_list[0], 4);
+            break;
+        }
+        else{
+            printf("resolve name server error\n");
+            vTaskDelay(100 / portTICK_RATE_MS);  // 100 ms
+        }
+    }
+    
+    printf("connect to %d.%d.%d.%d\n", HostEntry->h_addr_list[0][0],
+        HostEntry->h_addr_list[0][1],HostEntry->h_addr_list[0][2],
+        HostEntry->h_addr_list[0][3]
+        );
+#if 0
+	sin->sin_port=htons(XMPP_PORT);
+	xmpp_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+
+	if (connect(xmpp_sock, (struct sockaddr *)sin, sizeof(struct sockaddr)) != 0)        
+	{
+		printf("connect failed! socket num=%d\n", xmpp_sock);
+//        xmpp_stop();        
+        free(sin);
+		return -1;
+	}
+	else
+	{	
+		printf("connect success! next step xmpp_connect.\n");
+        xmpp_connect(xmpp_sock, g_hnt_factory_param.xmpp_jid, g_hnt_factory_param.xmpp_password);
+        
+        //xmpp_connect(xmpp_sock, "d15100006011002@seaing.net", "xphbxHFz7NU");
+        //xmpp_connect(xmpp_sock, "d15220010000002@seaing.net", "152BhqGZn4k");
+        
+        xmpp_send_header();
+//        xmpp_ready = 1;
+	}	
+#endif    
+    free(sin);
+
+	return 0;    
+}
+
 
 void ICACHE_FLASH_ATTR
 hnt_xmppcli_start(void)
@@ -833,11 +864,14 @@ hnt_xmppcli_start(void)
             sampling_intval_seconds_ = DeviceCustomInfo->sampling_interval;
         }
     }
-    
+#if 0    
     XMPPClientEspconn.proto.tcp = &xmpp_tcp;
     XMPPClientEspconn.type = ESPCONN_TCP;
     XMPPClientEspconn.state = ESPCONN_NONE;
 
     user_xmppclient_start_dns(&XMPPClientEspconn);
+#endif
+    xmpp_start();
+
 }
 

@@ -6,12 +6,6 @@
 
 #include "iksemel/common.h"
 #include "iksemel/iksemel.h"
-//#include "ets_sys.h"
-//#include "os_type.h"
-//#include "mem.h"
-//#include "osapi.h"
-//#include "user_interface.h"
-
 #include "espconn.h"
 
 #if 0

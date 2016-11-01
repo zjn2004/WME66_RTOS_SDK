@@ -3,10 +3,11 @@
 #include "hnt_interface.h"
 #include "espconn.h"
 #include "upgrade.h"
+#include "iksemel/iksemel.h"
+
 #include "xmpp/xmppcli.h"
 #include "xmpp/xmppcli_cwmp.h"
 #include "xmpp/xmppcli_cwmp_parameters.h"
-#include "iksemel/iksemel.h"
 #include "mgmt/mgmt.h"
 
 extern deviceGeneralParameter_t DeviceGeneralParamTable[];

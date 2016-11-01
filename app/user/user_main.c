@@ -30,7 +30,6 @@
 #include "lwip/sockets.h"
 #include "lwip/dns.h"
 #include "lwip/netdb.h"
-#include "espressif/espconn.h"
 
 #include "driver/uart.h"
 
@@ -80,8 +79,6 @@ static void ICACHE_FLASH_ATTR wifi_event_hand_function(System_Event_t * event)
 void ICACHE_FLASH_ATTR
 user_init(void)
 {
-    espconn_init();
-
     struct hnt_mgmt_factory_param factory_param;
 
     uart_init_new();

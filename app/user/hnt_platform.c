@@ -4,6 +4,7 @@
   * Seaing Confidential and Proprietary.
 *******************************************************************************/
 #include "esp_common.h"
+#include "iksemel/iksemel.h"
 
 #include "hnt_interface.h"
 #include "mgmt/mgmt.h"

@@ -40,6 +40,25 @@
 #define STANZA_NS_CWMPRPC "jabber:iq:cwmprpc"
 #define STANZA_NS_CWMP "urn:dslforum-org:cwmp-1-0"
 
+/* stuff we keep per session */
+struct session {
+    int xmpp_sock;
+    /* out packet filter */
+    iksfilter *filter;  
+	iksparser *prs;
+	iksid *acc;
+	char *pass;
+	char *bound_jid;
+	int features;
+	int authorized;
+	os_timer_t xmpp_inform_timer;
+	os_timer_t xmpp_sampling_timer;
+	os_timer_t xmpp_ping_timer;
+	os_timer_t xmpp_pong_timer;
+	int ping_timeout_times;
+};
+
+
 char *
 create_unique_id(char *prefix);
 char *
