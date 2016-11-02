@@ -17,6 +17,8 @@ LOCAL uint8 device_recon_count = 0;
 
 void ICACHE_FLASH_ATTR xmppcli_task(void *pvParameters) 
 {
+    os_printf("%s\n", __func__);
+
 	os_printf("heap_size %d\n", system_get_free_heap_size());
 	while (1) {
 		int ret = wifi_station_get_connect_status();   // wait for sys wifi connected OK.
@@ -34,24 +36,16 @@ void ICACHE_FLASH_ATTR
 hnt_platform_init(void)
 {
     struct station_config sta_conf;
-    wifi_station_get_config(&sta_conf);
-    if(strlen(sta_conf.ssid) == 0 && strlen(sta_conf.password) == 0) 
-    {
-        wifi_led_status_action(WIFI_LED_STATUS_RECEIVE_CONFIG);
-        bzero(&sta_conf, sizeof(struct station_config));
-        
-        sprintf(sta_conf.ssid, "TP-LINK_A04F");
-        sprintf(sta_conf.password, "12345678");
-        wifi_station_set_config(&sta_conf);
-        os_printf("%s\n", __func__);
 
-    }
-    else
-    {
-        wifi_led_status_action(WIFI_LED_STATUS_CONNECTING_TO_AP);
-    }
+    wifi_led_status_action(WIFI_LED_STATUS_RECEIVE_CONFIG);
+    bzero(&sta_conf, sizeof(struct station_config));
     
-	xTaskCreate(xmppcli_task, "xmppcli_task",(256*4), NULL, 2, NULL);    
+    sprintf(sta_conf.ssid, "TP-LINK_A04F");
+    sprintf(sta_conf.password, "12345678");
+    wifi_station_set_config(&sta_conf);
+    os_printf("%s\n", __func__);
+
+	xTaskCreate(xmppcli_task, "xmppcli_task",(256*6), NULL, 2, NULL); 
 }
 
 

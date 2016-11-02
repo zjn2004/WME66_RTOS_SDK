@@ -515,12 +515,22 @@ iks_start_sasl (iksparser *prs, enum ikssasltype type, char *username, char *pas
 		case IKS_SASL_PLAIN: {
 			int len = iks_strlen (username) + iks_strlen (pass) + 2;
 			char *s = iks_malloc (80+len);
+            memset(s,0,80+len);
 			char *base64;
-
 			iks_insert_attrib (x, "mechanism", "PLAIN");
-			sprintf (s, "%c%s%c%s", 0, username, 0, pass);
-            printf("Before base64:[%s]\n",s);
-			base64 = iks_base64_encode (s, len);
+//			sprintf (s, "%c%s%c%s", 0, username, 0, pass);
+            sprintf(s+1,"%s",username);
+            sprintf(s+1+iks_strlen(username)+1,"%s",pass);
+#if 0
+            printf("Before base64:[");
+            int K;
+            for(K=0;K<28;K++)
+                {
+                   printf("0x%02x ",s[K]);
+                }   
+            printf("]\n");
+#endif            
+			base64 = iks_base64_encode (s, len);           
 			iks_insert_cdata (x, base64, 0);
 			iks_free (base64);
 			iks_free (s);

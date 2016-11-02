@@ -13,6 +13,7 @@
 #include "hnt_interface.h"
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
+#include "espconn.h"
 
 extern struct hnt_factory_param g_hnt_factory_param;
 extern customInfo_t *DeviceCustomInfo;
@@ -744,7 +745,7 @@ user_xmppclient_dns_found(const char *name, ip_addr_t *ipaddr, void *arg)
     log_debug(" %d.%d.%d.%d\n",
             *((uint8 *)&ipaddr->addr), *((uint8 *)&ipaddr->addr + 1),
             *((uint8 *)&ipaddr->addr + 2), *((uint8 *)&ipaddr->addr + 3));
-
+#if 0
     if (xmpp_server_ip.addr == 0 && ipaddr->addr != 0) {
         xmpp_server_ip.addr = ipaddr->addr;
         memcpy(pespconn->proto.tcp->remote_ip, &ipaddr->addr, 4);
@@ -763,6 +764,7 @@ user_xmppclient_dns_found(const char *name, ip_addr_t *ipaddr, void *arg)
         user_xmppclient_connect(pespconn);        
         log_debug("system_get_free_heap_size = %d\n", system_get_free_heap_size()); 
     }
+#endif    
 }
 
 LOCAL void ICACHE_FLASH_ATTR
@@ -790,25 +792,21 @@ user_xmppclient_start_dns(struct espconn *pespconn)
 
 int xmpp_sock = -1;
 #define XMPP_PORT	5222
+#define XMPP_RX_BUF_SIZE 2048
+u8 xmpp_rx_buf[XMPP_RX_BUF_SIZE] = {0};
 
 int xmpp_start(void)
 {
-	struct sockaddr_in* sin;
+	struct sockaddr_in sin;
 	struct hostent* HostEntry;
-        
-    sin = (struct sockaddr_in*)malloc(sizeof(struct sockaddr_in));
-    
-	memset(sin, 0, sizeof(struct sockaddr));
-	sin->sin_family = AF_INET;                 
+         
     for(;;) {
         printf("gethostbyname %s\n",g_hnt_factory_param.xmpp_server);
         
         HostEntry = gethostbyname(g_hnt_factory_param.xmpp_server);
-        printf("HostEntry %p\n",HostEntry);
         
         if(HostEntry)
         {
-            memcpy(&sin->sin_addr.s_addr, HostEntry->h_addr_list[0], 4);
             break;
         }
         else{
@@ -816,21 +814,22 @@ int xmpp_start(void)
             vTaskDelay(100 / portTICK_RATE_MS);  // 100 ms
         }
     }
-    
     printf("connect to %d.%d.%d.%d\n", HostEntry->h_addr_list[0][0],
         HostEntry->h_addr_list[0][1],HostEntry->h_addr_list[0][2],
         HostEntry->h_addr_list[0][3]
         );
-#if 0
-	sin->sin_port=htons(XMPP_PORT);
+    
+    memset(&sin, 0, sizeof(struct sockaddr_in));
+    sin.sin_family = AF_INET; 
+    memcpy(&sin.sin_addr.s_addr, HostEntry->h_addr_list[0], 4);
+	sin.sin_port=htons(XMPP_PORT);
 	xmpp_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-
-
-	if (connect(xmpp_sock, (struct sockaddr *)sin, sizeof(struct sockaddr)) != 0)        
+    printf("xmpp socket num=%d\n", xmpp_sock);
+#if 1
+	if (connect(xmpp_sock, (struct sockaddr *)&sin, sizeof(struct sockaddr)) != 0)        
 	{
 		printf("connect failed! socket num=%d\n", xmpp_sock);
 //        xmpp_stop();        
-        free(sin);
 		return -1;
 	}
 	else
@@ -844,9 +843,7 @@ int xmpp_start(void)
         xmpp_send_header();
 //        xmpp_ready = 1;
 	}	
-#endif    
-    free(sin);
-
+#endif
 	return 0;    
 }
 
@@ -854,6 +851,8 @@ int xmpp_start(void)
 void ICACHE_FLASH_ATTR
 hnt_xmppcli_start(void)
 {
+    os_printf("%s\n", __func__);
+#if 0
     if(DeviceCustomInfo != NULL)
     {
         if((DeviceCustomInfo->inform_interval != 0) &&
@@ -864,14 +863,61 @@ hnt_xmppcli_start(void)
             sampling_intval_seconds_ = DeviceCustomInfo->sampling_interval;
         }
     }
-#if 0    
-    XMPPClientEspconn.proto.tcp = &xmpp_tcp;
-    XMPPClientEspconn.type = ESPCONN_TCP;
-    XMPPClientEspconn.state = ESPCONN_NONE;
-
-    user_xmppclient_start_dns(&XMPPClientEspconn);
-#endif
+#endif    
     xmpp_start();
+
+
+    int rx_len = 0;
+    int ret;
+    fd_set fds;
+    int maxsock;    
+    struct timeval tv;
+    
+    for(;;) 
+    {   
+
+        if(xmpp_sock >= 0)
+        {
+        
+            FD_ZERO(&fds);
+            FD_SET(xmpp_sock, &fds);
+            
+            tv.tv_sec = 0;
+            tv.tv_usec = 100000;
+            
+            maxsock = xmpp_sock;
+            
+            ret = select(maxsock + 1, &fds, NULL, NULL, &tv);//wait
+            //log_printf("select ret=%d\n", ret);
+            if(ret > 0) 
+            {
+                if (FD_ISSET(xmpp_sock, &fds))
+                {
+                    rx_len = 0;
+                    memset(xmpp_rx_buf, 0, XMPP_RX_BUF_SIZE);
+
+                    rx_len = recv(xmpp_sock, xmpp_rx_buf, XMPP_RX_BUF_SIZE, 0);
+                    if(rx_len > 0)
+                    {
+                        printf("rx_len=%d\n", rx_len);
+                        xmpp_recv(xmpp_rx_buf, rx_len);
+                    }                  
+                    else
+                    {                   
+                        printf("recv error, rx_len=%d\n", rx_len);
+//                        xmpp_err();
+                    }
+                }
+            }
+            else if(ret < 0) {
+                printf("select error!!\n");
+                printf("select ret=%d\n", ret);
+//                xmpp_err();
+            }
+
+            continue;
+        }
+    }
 
 }
 
