@@ -25,5 +25,9 @@
 #ifndef __USER_CONFIG_H__
 #define __USER_CONFIG_H__
 
+
+#define USER_LEXY_ROBOT_R101 0
+#define USER_SMARTPLUG 1
+
 #endif
 

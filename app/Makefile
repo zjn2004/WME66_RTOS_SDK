@@ -25,6 +25,7 @@ SUBDIRS=    \
 	user \
 	driver \
 	ledctl \
+	user_uart \
 	mgmt \
 	iksemel \
 	atcmd \
@@ -57,6 +58,7 @@ COMPONENTS_eagle.app.v6 = \
 
 COMPONENTS_eagle.app.v6 += \
         ledctl/libledctl.a \
+	user_uart/libuser_uart.a \
 	mgmt/libmgmt.a  \
         iksemel/libiksemel.a  \
         atcmd/libatcmd.a  \

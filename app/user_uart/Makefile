@@ -12,7 +12,7 @@
 #     a generated lib/image xxx.a ()
 #
 ifndef PDIR
-GEN_LIBS = libdriver.a
+GEN_LIBS = libuser_uart.a
 endif
 
 
@@ -38,6 +38,7 @@ endif
 #
 
 INCLUDES := $(INCLUDES) -I $(PDIR)include
+INCLUDES += -I ./
 PDIR := ../$(PDIR)
 sinclude $(PDIR)Makefile
 
