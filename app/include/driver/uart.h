@@ -277,7 +277,7 @@ void UART_SetLineInverse(UART_Port uart_no, UART_LineLevelInverse inverse_mask) 
   *  
   * @return  null
   */
-void uart_init_new(void);
+void uart_init_new(UART_BautRate uart0_br,UART_BautRate uart1_br,UART_Port print_port,bool uart_com);
 
 /**
   * @}

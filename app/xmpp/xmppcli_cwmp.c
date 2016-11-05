@@ -9,6 +9,7 @@
 #include "xmpp/xmppcli_cwmp.h"
 #include "xmpp/xmppcli_cwmp_parameters.h"
 #include "mgmt/mgmt.h"
+#include "ledctl/ledctl.h"
 
 extern deviceGeneralParameter_t DeviceGeneralParamTable[];
 extern deviceParameterTable_t DeviceCustomParamTable;
@@ -1775,7 +1776,7 @@ CwmpRpcReboot(void *h, const char *to, const char *iq_id,
                                     xmpp_stanza_t * const cwmprpc_elm)
 {
     SendRebootResponse(h, to, iq_id);
-    wifi_led_status_action(WIFI_LED_STATUS_OFFLINE);
+    hnt_wifi_led_status_action(WIFI_LED_OFF);
     SendXmppLogout();
 
     os_timer_disarm(&xmpp_rpc_timer);
@@ -1788,7 +1789,7 @@ CwmpRpcFactoryReset(void *h, const char *to, const char *iq_id,
                                     xmpp_stanza_t * const cwmprpc_elm)
 {
     SendFactoryResetResponse(h, to, iq_id);
-    wifi_led_status_action(WIFI_LED_STATUS_RECEIVE_CONFIG);
+    hnt_wifi_led_status_action(WIFI_LED_BLINK_FAST);
     system_factory_reset();
 }
 

@@ -72,7 +72,7 @@ void hw_timer_arm(uint32 val);
   *
   * @return  null
   */
-void hw_timer_set_func(void (* user_hw_timer_cb_set)(void));
+void hw_timer_set_func(void (* user_hw_timer_cb_set)(void* arg),void * param_nmi);
 
 /**
   * @}

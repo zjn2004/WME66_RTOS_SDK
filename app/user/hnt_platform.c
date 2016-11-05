@@ -9,11 +9,7 @@
 #include "hnt_interface.h"
 #include "mgmt/mgmt.h"
 #include "xmpp/xmppcli.h"
-
-#define DEVICE_RESET_MAX_COUNT 10
-LOCAL os_timer_t client_timer;
-LOCAL uint8 device_recon_count = 0;
-
+#include "ledctl/ledctl.h"
 
 void ICACHE_FLASH_ATTR xmppcli_task(void *pvParameters) 
 {
@@ -27,7 +23,9 @@ void ICACHE_FLASH_ATTR xmppcli_task(void *pvParameters)
 		vTaskDelay(100 / portTICK_RATE_MS);	 // 100 ms
 	}
     
+    hnt_wifi_led_status_action(WIFI_LED_BLINK_SLOW);
 	hnt_xmppcli_start();
+    
 	vTaskDelete(NULL);
 }
 
@@ -37,7 +35,7 @@ hnt_platform_init(void)
 {
     struct station_config sta_conf;
 
-    wifi_led_status_action(WIFI_LED_STATUS_RECEIVE_CONFIG);
+    hnt_wifi_led_status_action(WIFI_LED_BLINK_SLOW);
     bzero(&sta_conf, sizeof(struct station_config));
     
     sprintf(sta_conf.ssid, "TP-LINK_A04F");

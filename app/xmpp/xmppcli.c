@@ -13,7 +13,8 @@
 #include "hnt_interface.h"
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
-#include "espconn.h"
+//#include "espconn.h"
+#include "ledctl/ledctl.h"
 
 extern struct hnt_factory_param g_hnt_factory_param;
 extern customInfo_t *DeviceCustomInfo;
@@ -574,7 +575,7 @@ user_xmppclient_restart_cb(void)
     user_xmppclient_discon();
     user_xmppclient_disconnect();   
 
-    wifi_led_status_action(WIFI_LED_STATUS_CONNECTING_TO_AP);    
+    hnt_wifi_led_status_action(WIFI_LED_BLINK_SLOW);    
 }
 
 int ICACHE_FLASH_ATTR
@@ -590,205 +591,6 @@ user_xmppclient_stop(void)
     user_xmppclient_discon();
     user_xmppclient_disconnect();   
 }
-
-#if 0
-/******************************************************************************
- * FunctionName : user_esp_platform_discon_cb
- * Description  : disconnect successfully with the host
- * Parameters   : arg -- Additional argument to pass to the callback function
- * Returns      : none
-*******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
-user_xmppclient_discon_cb(void *arg)
-{
-    struct espconn *pespconn = arg;
-
-    log_debug("user_esp_platform_discon_cb\n");
-
-    if (pespconn == NULL) {
-        return;
-    }
-
-    user_xmppclient_restart();    
-}
-
-/******************************************************************************
- * FunctionName : user_xmppclient_sent
- * Description  : Processing the application data and sending it to the host
- * Parameters   : pespconn -- the espconn used to connetion with the host
- * Returns      : none
-*******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
-user_xmppclient_sent(struct espconn *pespconn)
-{
-    xmpp_send_header(pespconn);
-}
-
-/******************************************************************************
- * FunctionName : user_xmppclient_sent_cb
- * Description  : Data has been sent successfully and acknowledged by the remote host.
- * Parameters   : arg -- Additional argument to pass to the callback function
- * Returns      : none
-*******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
-user_xmppclient_sent_cb(void *arg)
-{
-    struct espconn *pespconn = arg;
-
-    log_debug("test\n");
-}
-
-/******************************************************************************
- * FunctionName : user_xmppclient_recv_cb
- * Description  : Processing the received data from the server
- * Parameters   : arg -- Additional argument to pass to the callback function
- *                pusrdata -- The received data (or NULL when the connection has been closed!)
- *                length -- The length of received data
- * Returns      : none
-*******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
-user_xmppclient_recv_cb(void *arg, char *pusrdata, unsigned short length)
-{
-    struct espconn *pespconn = arg;
-    sint8 ret = 0;
-
-    log_debug(" length:%d\n", length);
-    ret = xmpp_recv(pusrdata, length);
-    if (ret != 0)
-        user_xmppclient_restart();
-}
-
-/******************************************************************************
- * FunctionName : user_esp_platform_recon_cb
- * Description  : The connection had an error and is already deallocated.
- * Parameters   : arg -- Additional argument to pass to the callback function
- * Returns      : none
-*******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
-user_xmppclient_recon_cb(void *arg, sint8 err)
-{
-    struct espconn *pespconn = (struct espconn *)arg;
-
-    printf("xmpp recon\n");
-    xmpp_conn_status = 0;
-    
-    user_xmppclient_restart();
-}
-
-/******************************************************************************
- * FunctionName : user_esp_platform_connect_cb
- * Description  : A new incoming connection has been connected.
- * Parameters   : arg -- Additional argument to pass to the callback function
- * Returns      : none
-*******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
-user_xmppclient_connect_cb(void *arg)
-{
-    wifi_led_status_action(WIFI_LED_STATUS_CONNECTED_TO_SERVER);
-    
-    struct espconn *pespconn = arg;
-
-    log_debug("system_get_free_heap_size = %d\n", system_get_free_heap_size()); 
-
-    printf("xmpp_connect:[%s][%s]\n",g_hnt_factory_param.xmpp_jid,g_hnt_factory_param.xmpp_password);
-
-    xmpp_connect(&XMPPClientEspconn, 
-        g_hnt_factory_param.xmpp_jid, g_hnt_factory_param.xmpp_password);
-
-    log_debug("system_get_free_heap_size = %d\n", system_get_free_heap_size()); 
-
-    espconn_regist_recvcb(pespconn, user_xmppclient_recv_cb);
-    espconn_regist_sentcb(pespconn, user_xmppclient_sent_cb);
-    user_xmppclient_sent(pespconn);    
-}
-
-/******************************************************************************
- * FunctionName : user_esp_platform_connect
- * Description  : The function given as the connect with the host
- * Parameters   : espconn -- the espconn used to connect the connection
- * Returns      : none
-*******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
-user_xmppclient_connect(struct espconn *pespconn)
-{
-    log_debug("test\n");
-
-#ifdef CLIENT_SSL_ENABLE
-    espconn_secure_connect(pespconn);
-#else
-    espconn_connect(pespconn);
-#endif
-}
-
-/******************************************************************************
- * FunctionName : user_esp_platform_dns_found
- * Description  : dns found callback
- * Parameters   : name -- pointer to the name that was looked up.
- *                ipaddr -- pointer to an ip_addr_t containing the IP address of
- *                the hostname, or NULL if the name could not be found (or on any
- *                other error).
- *                callback_arg -- a user-specified callback argument passed to
- *                dns_gethostbyname
- * Returns      : none
-*******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
-user_xmppclient_dns_found(const char *name, ip_addr_t *ipaddr, void *arg)
-{
-    struct espconn *pespconn = (struct espconn *)arg;
-
-    if (ipaddr == NULL) {
-        log_debug("NULL\n");
-        return;
-    }
-    log_debug("system_get_free_heap_size = %d\n", system_get_free_heap_size()); 
-
-    log_debug(" %d.%d.%d.%d\n",
-            *((uint8 *)&ipaddr->addr), *((uint8 *)&ipaddr->addr + 1),
-            *((uint8 *)&ipaddr->addr + 2), *((uint8 *)&ipaddr->addr + 3));
-#if 0
-    if (xmpp_server_ip.addr == 0 && ipaddr->addr != 0) {
-        xmpp_server_ip.addr = ipaddr->addr;
-        memcpy(pespconn->proto.tcp->remote_ip, &ipaddr->addr, 4);
-
-        pespconn->proto.tcp->local_port = espconn_port();
-
-#ifdef CLIENT_SSL_ENABLE
-        pespconn->proto.tcp->remote_port = 5223;
-#else
-        pespconn->proto.tcp->remote_port = 5222;
-#endif
-
-        espconn_regist_connectcb(pespconn, user_xmppclient_connect_cb);
-        espconn_regist_disconcb(pespconn, user_xmppclient_discon_cb);
-        espconn_regist_reconcb(pespconn, user_xmppclient_recon_cb);
-        user_xmppclient_connect(pespconn);        
-        log_debug("system_get_free_heap_size = %d\n", system_get_free_heap_size()); 
-    }
-#endif    
-}
-
-LOCAL void ICACHE_FLASH_ATTR
-user_xmppclient_start_dns(struct espconn *pespconn)
-{
-    xmpp_server_ip.addr = 0;
-    
-    for(;;) 
-    {
-        printf("espconn_gethostbyname:[%s]\n",g_hnt_factory_param.xmpp_server);
-        if (ESPCONN_OK == espconn_gethostbyname(
-                pespconn, g_hnt_factory_param.xmpp_server, 
-                &xmpp_server_ip, user_xmppclient_dns_found))
-        {
-            break;
-        }
-        else
-            printf("resolve name server error\n");  
-
-        vTaskDelay(100 / portTICK_RATE_MS);  // 100 ms
-    }
-    
-}
-#endif
 
 int xmpp_sock = -1;
 #define XMPP_PORT	5222

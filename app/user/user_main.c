@@ -80,12 +80,11 @@ void ICACHE_FLASH_ATTR
 user_init(void)
 {
     struct hnt_mgmt_factory_param factory_param;
+    
+    user_custom_init();
 
-    uart_init_new();
+    printf("\nSDK version:%s\n", system_get_sdk_version());
 
-    printf("SDK version:%s\n", system_get_sdk_version());
-
-//    custom_init();
     memset(&factory_param,0,sizeof(struct hnt_mgmt_factory_param));
     sprintf(factory_param.device_type,"4013");
     sprintf(factory_param.device_id,"15414013000001");

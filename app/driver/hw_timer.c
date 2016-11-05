@@ -47,12 +47,13 @@ typedef enum {          // timer interrupt mode
 
 #define RTC_REG_WRITE(addr, val)    WRITE_PERI_REG(addr, val)
 
-static void (* user_hw_timer_cb)(void) = NULL;
+static void (* user_hw_timer_cb)(void*arg) = NULL;
+static void *param=NULL;
 
 static void hw_timer_isr_cb(void *arg)
 {
     if (user_hw_timer_cb != NULL) {
-        (*(user_hw_timer_cb))();
+        (*(user_hw_timer_cb))(param);
     }
 }
 
@@ -61,9 +62,10 @@ void hw_timer_arm(uint32 val)
     RTC_REG_WRITE(FRC1_LOAD_ADDRESS, US_TO_RTC_TIMER_TICKS(val));
 }
 
-void hw_timer_set_func(void (* user_hw_timer_cb_set)(void))
+void hw_timer_set_func(void (* user_hw_timer_cb_set)(void* arg),void * param_nmi)
 {
     user_hw_timer_cb = user_hw_timer_cb_set;
+    param=param_nmi;   
 }
 
 void hw_timer_init(uint8 req)

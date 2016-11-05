@@ -29,7 +29,4 @@ struct hnt_mgmt_sec_flag_param {
 void 
 hnt_mgmt_system_factory_reset(void);
 
-#define DEVICE_RESET_MAX_COUNT 10
-#define DEVICE_RECONNECT_MAX_COUNT 5
-
 #endif

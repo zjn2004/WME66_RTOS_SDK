@@ -29,6 +29,7 @@
 #include "freertos/queue.h"
 
 #include "driver/uart.h"
+#include "user_uart/user_uart.h"
 
 enum {
     UART_EVENT_RX_CHAR,
@@ -109,45 +110,6 @@ uart_rx_intr_handler_ssc(void *arg)
     portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }
 
-#if 0
-LOCAL void
-uart_config(uint8 uart_no, UartDevice *uart)
-{
-    if (uart_no == UART1) {
-        PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO2_U, FUNC_U1TXD_BK);
-    } else {
-        /* rcv_buff size if 0x100 */
-        _xt_isr_attach(ETS_UART_INUM, uart_rx_intr_handler_ssc, NULL);
-        PIN_PULLUP_DIS(PERIPHS_IO_MUX_U0TXD_U);
-        PIN_FUNC_SELECT(PERIPHS_IO_MUX_U0TXD_U, FUNC_U0TXD);
-    }
-
-    uart_div_modify(uart_no, UART_CLK_FREQ / (uart->baut_rate));
-
-    WRITE_PERI_REG(UART_CONF0(uart_no), uart->exist_parity
-                   | uart->parity
-                   | (uart->stop_bits << UART_STOP_BIT_NUM_S)
-                   | (uart->data_bits << UART_BIT_NUM_S));
-
-    //clear rx and tx fifo,not ready
-    SET_PERI_REG_MASK(UART_CONF0(uart_no), UART_RXFIFO_RST | UART_TXFIFO_RST);
-    CLEAR_PERI_REG_MASK(UART_CONF0(uart_no), UART_RXFIFO_RST | UART_TXFIFO_RST);
-
-    if (uart_no == UART0) {
-        //set rx fifo trigger
-        WRITE_PERI_REG(UART_CONF1(uart_no),
-                       ((0x01 & UART_RXFIFO_FULL_THRHD) << UART_RXFIFO_FULL_THRHD_S));
-    } else {
-        WRITE_PERI_REG(UART_CONF1(uart_no),
-                       ((0x01 & UART_RXFIFO_FULL_THRHD) << UART_RXFIFO_FULL_THRHD_S));
-    }
-
-    //clear all interrupt
-    WRITE_PERI_REG(UART_INT_CLR(uart_no), 0xffff);
-    //enable rx_interrupt
-    SET_PERI_REG_MASK(UART_INT_ENA(uart_no), UART_RXFIFO_FULL_INT_ENA);
-}
-#endif
 
 LOCAL void
 uart_task(void *pvParameters)
@@ -170,35 +132,6 @@ uart_task(void *pvParameters)
     vTaskDelete(NULL);
 }
 
-#if 0
-void
-uart_init(void)
-{
-    while (READ_PERI_REG(UART_STATUS(0)) & (UART_TXFIFO_CNT << UART_TXFIFO_CNT_S));
-
-    while (READ_PERI_REG(UART_STATUS(1)) & (UART_TXFIFO_CNT << UART_TXFIFO_CNT_S));
-
-    UART_ConfigTypeDef uart;
-
-    uart.baut_rate    = BIT_RATE_74880;
-    uart.data_bits    = UART_WordLength_8b;
-    uart.flow_ctrl    = USART_HardwareFlowControl_None;
-    // uart.exist_parity = PARITY_DIS;
-    uart.parity       = USART_Parity_None;
-    uart.stop_bits    = USART_StopBits_1;
-
-    uart_config(UART0, &uart);
-    uart_config(UART1, &uart);
-
-    os_install_putc1(uart1_write_char);
-
-    _xt_isr_unmask(1 << ETS_UART_INUM);
-
-    xQueueUart = xQueueCreate(32, sizeof(os_event_t));
-
-    xTaskCreate(uart_task, (uint8 const *)"uTask", 512, NULL, tskIDLE_PRIORITY + 2, &xUartTaskHandle);
-}
-#endif
 
 //=================================================================
 
@@ -348,6 +281,9 @@ UART_IntrConfig(UART_Port uart_no,  UART_IntrConfTypeDef *pUARTIntrConf)
 LOCAL void
 uart0_rx_intr_handler(void *para)
 {
+    bool uart_com = *(bool *)para;
+    printf("\nuart_com enable[%d]\r\n",uart_com);
+
     /* uart0 and uart1 intr combine togther, when interrupt occur, see reg 0x3ff20020, bit2, bit0 represents
     * uart1 and uart0 respectively
     */
@@ -355,7 +291,9 @@ uart0_rx_intr_handler(void *para)
     uint8 uart_no = UART0;//UartDev.buff_uart_no;
     uint8 fifo_len = 0;
     uint8 buf_idx = 0;
-    uint8 fifo_tmp[128] = {0};
+    
+ 	portBASE_TYPE xHigherPriorityTaskWoken;
+	CusUartIntrPtr uart_intr_data;
 
     uint32 uart_intr_status = READ_PERI_REG(UART_INT_ST(uart_no)) ;
 
@@ -383,8 +321,15 @@ uart0_rx_intr_handler(void *para)
                 uart_tx_one_char(UART0, READ_PERI_REG(UART_FIFO(UART0)) & 0xFF);
                 buf_idx++;
             }
+			uart_intr_data.rx_len = uart_intr_data.rx_len+fifo_len;
 
             WRITE_PERI_REG(UART_INT_CLR(UART0), UART_RXFIFO_TOUT_INT_CLR);
+            if(uart_com)
+            {
+    			printf("recv ok");            
+    			xQueueSendFromISR(xQueueCusUart, (void *)&uart_intr_data, &xHigherPriorityTaskWoken);
+    			portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
+            }
         } else if (UART_TXFIFO_EMPTY_INT_ST == (uart_intr_status & UART_TXFIFO_EMPTY_INT_ST)) {
             printf("empty\n\r");
             WRITE_PERI_REG(UART_INT_CLR(uart_no), UART_TXFIFO_EMPTY_INT_CLR);
@@ -398,13 +343,13 @@ uart0_rx_intr_handler(void *para)
 }
 
 void
-uart_init_new(void)
+uart_init_new(UART_BautRate uart0_br,UART_BautRate uart1_br,UART_Port print_port,bool uart_com)
 {
     UART_WaitTxFifoEmpty(UART0);
     UART_WaitTxFifoEmpty(UART1);
 
     UART_ConfigTypeDef uart_config;
-    uart_config.baud_rate    = BIT_RATE_115200;
+    uart_config.baud_rate    = uart0_br;
     uart_config.data_bits     = UART_WordLength_8b;
     uart_config.parity          = USART_Parity_None;
     uart_config.stop_bits     = USART_StopBits_1;
@@ -413,14 +358,24 @@ uart_init_new(void)
     uart_config.UART_InverseMask = UART_None_Inverse;
     UART_ParamConfig(UART0, &uart_config);
 
+    uart_config.baud_rate    = uart1_br;
+    uart_config.data_bits     = UART_WordLength_8b;
+    uart_config.parity          = USART_Parity_None;
+    uart_config.stop_bits     = USART_StopBits_1;
+    uart_config.flow_ctrl      = USART_HardwareFlowControl_None;
+    uart_config.UART_RxFlowThresh = 120;
+    uart_config.UART_InverseMask = UART_None_Inverse;
+    UART_ParamConfig(UART1, &uart_config);
+
     UART_IntrConfTypeDef uart_intr;
-    uart_intr.UART_IntrEnMask = UART_RXFIFO_TOUT_INT_ENA | UART_FRM_ERR_INT_ENA | UART_RXFIFO_FULL_INT_ENA | UART_TXFIFO_EMPTY_INT_ENA;
+    uart_intr.UART_IntrEnMask = UART_RXFIFO_TOUT_INT_ENA | UART_FRM_ERR_INT_ENA | UART_TXFIFO_EMPTY_INT_ENA;
     uart_intr.UART_RX_FifoFullIntrThresh = 10;
     uart_intr.UART_RX_TimeOutIntrThresh = 2;
     uart_intr.UART_TX_FifoEmptyIntrThresh = 20;
     UART_IntrConfig(UART0, &uart_intr);
 
-    UART_SetPrintPort(UART0);
-    UART_intr_handler_register(uart0_rx_intr_handler, NULL);
+    UART_SetPrintPort(print_port);
+    UART_intr_handler_register(uart0_rx_intr_handler,(void *)&uart_com);
     ETS_UART_INTR_ENABLE();
+
 }

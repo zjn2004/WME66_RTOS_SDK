@@ -41,10 +41,6 @@ typedef struct
 	char rx_buf[CUS_UART_TX_MAX];
 }CusUartIntrPtr;
 
-void debug_print_hex_data(char*buf, int len);
-void ICACHE_FLASH_ATTR user_uart_task(void *pvParameters);
-void ICACHE_FLASH_ATTR user_uart_dev_start(void);
-
 #define DATA_LEN(msg) (sizeof(msg) - sizeof(msg.hdr) - sizeof(msg.checksum)- sizeof(msg.dataEnd))
 
 #define MSG_RESEND_TIMES 2
@@ -92,6 +88,7 @@ void hnt_uart_event_func_regist(void *func);
 int uart_tx_with_rsp(char* msg,int msgLen,char* rspMsg,int rspMsgLen);
 int uart_tx_without_rsp(char* msg,int msgLen);
 
+void ICACHE_FLASH_ATTR user_uart_dev_start(void);
 
 #endif
 
