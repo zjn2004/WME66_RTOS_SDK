@@ -23,7 +23,8 @@ void ICACHE_FLASH_ATTR xmppcli_task(void *pvParameters)
 		vTaskDelay(100 / portTICK_RATE_MS);	 // 100 ms
 	}
     
-    hnt_wifi_led_status_action(WIFI_LED_BLINK_SLOW);
+    hnt_wifi_led_status_action(WIFI_LED_ON);
+    
 	hnt_xmppcli_start();
     
 	vTaskDelete(NULL);

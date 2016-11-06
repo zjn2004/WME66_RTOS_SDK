@@ -179,41 +179,6 @@ GetDeviceInfo(xmpp_stanza_t* inform_el)
 
     memset(&paramList, 0, sizeof(parameterValueList_s));
     //Get device info param list
-#if 0
-    if ((rc = qmibtree_remote_param_names(qdbus_, 
-                                          "Device.Inform.ParamList.", 
-                                          2, 
-                                          &qmibtree_rc,
-                                          &entry_list, 
-                                          &entry_num)) == QDBUS_RC_OK) 
-    {
-        paramList.size = entry_num;
-        paramList.parameterValueStructs = calloc(1, sizeof(parameterValueStruct_s) * paramList.size);
-        for (i = 0; i < entry_num; i++)  
-        {
-            paramValueStruct = &(paramList.parameterValueStructs[i]);
-            qmibtree_remote_param_read_v2_valstr(qdbus_, 
-                     entry_list[i], 
-                     "Name",
-                     paramName,
-                     &qmibtree_rc);
-            //printf("param name:%s\n", paramName);
-            
-            char *value;
-            qmibtree_remote_param_read(qdbus_, 
-                                     paramName, 
-                                     &qmibtree_rc, 
-                                     &value);
-            if (qmibtree_rc_ok((int)qmibtree_rc)) 
-            {
-                paramValueStruct->Name = strdup(paramName); 
-                paramValueStruct->Value = strdup(value);                 
-            }
-            
-        }
-        qmibtree_remote_param_names_free(entry_list);  
-    }
-#endif
     //Build inform body --DeviceInfo    
     xmpp_stanza_t* devinfo_el = xmpp_stanza_create_within(QN_DeviceInfo, inform_el);
     xmpp_stanza_t* devinfo_pl_el = xmpp_stanza_create_within(QN_ParameterList, inform_el);    
@@ -570,6 +535,8 @@ CwmpInformUpdateData2(void)
     xmpp_stanza_set_ns(inform_el, STANZA_NS_CWMP);
     
     xmpp_stanza_t* devinfo_el = GetDeviceInfo(inform_el);
+    log_debug("test\n");
+    
     xmpp_stanza_t* reason_el = xmpp_stanza_create_within(QN_Reason, inform_el);
 
     xmpp_stanza_set_contents(reason_el, "UpdateData");
@@ -808,6 +775,7 @@ CwmpInformAlarm(char *alarmInfo, int level)
     xmpp_stanza_set_ns(inform_el, STANZA_NS_CWMP);
 
     devinfo_el = GetDeviceInfo(inform_el);
+    log_debug("test\n");
 
     reason_el = xmpp_stanza_create_within(QN_Reason, inform_el);
     xmpp_stanza_set_contents(reason_el, "Alarm");
@@ -1107,6 +1075,7 @@ SendCwmpRpcRsp(void *h, const char *to, const char *iq_id,
     if (h != NULL)
         dlmpd_send(h, iq_stanza);
 #endif
+    log_debug("test\n");
 
     xmpp_send(iq_stanza);
     
@@ -1546,94 +1515,6 @@ xmpp_download_upgrade_rsp(void *arg)
 #endif    
 }
 
-#if 0
-/******************************************************************************
- * FunctionName : user_esp_platform_dns_found
- * Description  : dns found callback
- * Parameters   : name -- pointer to the name that was looked up.
- *                ipaddr -- pointer to an ip_addr_t containing the IP address of
- *                the hostname, or NULL if the name could not be found (or on any
- *                other error).
- *                callback_arg -- a user-specified callback argument passed to
- *                dns_gethostbyname
- * Returns      : none
-*******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
-xmpp_download_dns_found(const char *name, ip_addr_t *ipaddr, void *arg)
-{
-    struct espconn *pespconn = (struct espconn *)arg;
-
-    if (ipaddr == NULL) {
-        log_debug("NULL\n");
-        return;
-    }
-
-    log_debug(" %d.%d.%d.%d\n",
-            *((uint8 *)&ipaddr->addr), *((uint8 *)&ipaddr->addr + 1),
-            *((uint8 *)&ipaddr->addr + 2), *((uint8 *)&ipaddr->addr + 3));
-
-    if (xmpp_download_ip.addr == 0 && ipaddr->addr != 0) {
-        os_timer_disarm(&xmpp_download_timer);
-        xmpp_download_ip.addr = ipaddr->addr;
-        xmpp_download_server->ip[0] = *((uint8 *)&ipaddr->addr);
-        xmpp_download_server->ip[1] = *((uint8 *)&ipaddr->addr+1);
-        xmpp_download_server->ip[2] = *((uint8 *)&ipaddr->addr+2);
-        xmpp_download_server->ip[3] = *((uint8 *)&ipaddr->addr+3);
-        
-#if 0//def UPGRADE_SSL_ENABLE   
-        if (system_upgrade_start_ssl(xmpp_download_server) == false) {
-#else
-    
-        if (system_upgrade_start(xmpp_download_server) == false) {
-#endif
-            log_debug("upgrade is already started\n");
-        }  
-    }
-}
-
-/******************************************************************************
- * FunctionName : user_esp_platform_dns_check_cb
- * Description  : 1s time callback to check dns found
- * Parameters   : arg -- Additional argument to pass to the callback function
- * Returns      : none
-*******************************************************************************/
-LOCAL void ICACHE_FLASH_ATTR
-xmpp_download_dns_check_cb(void *arg)
-{
-    char *host = arg;
-
-    log_debug("test\n");
-
-    espconn_gethostbyname(&xmpp_download_espconn, host, &xmpp_download_ip, xmpp_download_dns_found);
-
-    os_timer_arm(&xmpp_download_timer, 1000, 0);
-}
-
-LOCAL void ICACHE_FLASH_ATTR
-xmpp_download_start_dns(char *host)
-{
-    ip_addr_t tmp_ip;
-
-    xmpp_download_espconn.proto.tcp = (esp_tcp *)zalloc(sizeof(esp_tcp));
-    xmpp_download_espconn.type = ESPCONN_TCP;
-    xmpp_download_espconn.state = ESPCONN_NONE;
-    system_upgrade_flag_set(UPGRADE_FLAG_IDLE);
-
-    xmpp_download_ip.addr = 0;
-    if (0 == espconn_gethostbyname(&xmpp_download_espconn, host, &xmpp_download_ip, xmpp_download_dns_found))
-    {
-        tmp_ip.addr = xmpp_download_ip.addr;
-        xmpp_download_ip.addr = 0;
-        xmpp_download_dns_found(host, &xmpp_download_ip, &xmpp_download_espconn);
-    }
-    else
-    {
-        os_timer_disarm(&xmpp_download_timer);
-        os_timer_setfn(&xmpp_download_timer, (os_timer_func_t *)xmpp_download_dns_check_cb, host);
-        os_timer_arm(&xmpp_download_timer, 1000, 0);
-    }
-}
-#endif
 static void ICACHE_FLASH_ATTR
 CwmpRpcSetParameterValues(void *h, const char *to, const char *iq_id, 
                                     xmpp_stanza_t * const cwmprpc_elm)
@@ -1797,6 +1678,7 @@ static void ICACHE_FLASH_ATTR
 CwmpRpcDownload(const char *to, const char *iq_id, 
                                     xmpp_stanza_t * const cwmprpc_elm)
 {
+    log_debug("test\n");
 #if 0
     xmpp_stanza_t* filetype_el;
     xmpp_stanza_t* url_el;

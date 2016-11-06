@@ -156,7 +156,7 @@ key_intr_handler(struct keys_param *keys)
 
             if (keys->single_key[i]->key_level == 1) {
                 // 5s, restart & enter softap mode
-                hw_timer_arm(1000*1000) ;
+                hw_timer_arm(5*1000*1000) ;
 		        hw_timer_set_func(key_5s_cb,keys->single_key[i]);
 		        TM1_EDGE_INT_ENABLE();
                 keys->single_key[i]->key_level = 0;

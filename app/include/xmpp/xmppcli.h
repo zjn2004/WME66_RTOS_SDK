@@ -1,6 +1,15 @@
 #ifndef XMPPCLI_H
 #define XMPPCLI_H
 
+enum {
+    MSG_SEND_PING = 0,
+    MSG_XMPP_START,
+    MSG_XMPP_STOP,
+    
+    MSG_INVALID = 0xff        
+};
+
+
 #ifndef PONG_TIMEOUT
 #define PONG_TIMEOUT (3 * 1000) /* 3 seconds */
 #endif

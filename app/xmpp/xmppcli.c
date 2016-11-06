@@ -4,6 +4,8 @@
 ** modify it under the terms of GNU Lesser General Public License.
 */
 #include "esp_common.h" 
+#include "c_types.h"
+#include "freertos/queue.h"
 
 #include "iksemel/iksemel.h"
 #include "xmpp/xmppcli.h"
@@ -15,6 +17,8 @@
 #include "lwip/netdb.h"
 //#include "espconn.h"
 #include "ledctl/ledctl.h"
+
+xQueueHandle xmpp_task_q;
 
 extern struct hnt_factory_param g_hnt_factory_param;
 extern customInfo_t *DeviceCustomInfo;
@@ -52,17 +56,14 @@ LOCAL uint8 xmpp_conn_status = 0;
 uint32 local_time_pre = 0;
 uint32 remote_time_sec = 0;
 uint32 remote_time_msec = 0;
+
 uint32 ICACHE_FLASH_ATTR
 get_current_time(void)
 {
-    if (remote_time_sec == 0)
-    {
-        //        return system_get_time()/(1000 * 1000) + system_mktime(2015,1,1,1,45,30);
-    }
-    else
-    {
+    if (remote_time_sec)
         return remote_time_sec + (system_get_time()-local_time_pre)/(1000*1000);            
-    }
+    else
+        return 0;            
 }
 
 uint8 ICACHE_FLASH_ATTR
@@ -157,10 +158,12 @@ _pong_handler(struct session *sess, ikspak *pak)
 
         if(time_stamp = iks_find_attrib(pak->x, STANZA_ATTR_TIMESTAMP))
         {
+            printf("local time %02d:%02d:%02d\n", (get_current_time()/3600)%24 + 8,
+                (get_current_time()/60)%60,(get_current_time())%60);
+            
             log_debug("time_stamp = %s\n", time_stamp);
             memcpy(second_buffer, time_stamp, strlen(time_stamp) - 3);
             memcpy(msec_buffer, time_stamp + (strlen(time_stamp) - 3), 3);
-            log_debug("time_stamp = %s\n", time_stamp);
             log_debug("second_buffer = %s\n", second_buffer);
             log_debug("msec_buffer = %s\n", msec_buffer);
             local_time_pre = system_get_time();
@@ -169,6 +172,13 @@ _pong_handler(struct session *sess, ikspak *pak)
             log_debug("local_time_pre = %u\n", local_time_pre);
             log_debug("remote_time_sec = %u\n", remote_time_sec);
             log_debug("remote_time_msec = %u\n", remote_time_msec);
+
+            printf("remote time %02d:%02d:%02d\n", (remote_time_sec/3600)%24 + 8,
+                (remote_time_sec/60)%60,(remote_time_sec)%60);
+
+            printf("set time %02d:%02d:%02d\n", (get_current_time()/3600)%24 + 8,
+                (get_current_time()/60)%60,(get_current_time())%60);    
+            
             log_debug("current time = %u\n", get_current_time());
 //            hnt_platform_timer_init();
         }
@@ -194,10 +204,20 @@ _pong_timed_handler(void * parg)
         system_restart();
     }
 }
-
 LOCAL void ICACHE_FLASH_ATTR
 _ping_timed_handler(void * parg)
 {
+    u32 msg = MSG_SEND_PING;
+    xQueueSend(xmpp_task_q, (void *)&msg, 0);            
+}
+
+LOCAL void ICACHE_FLASH_ATTR
+_send_ping(void * parg)
+{
+    log_debug("test\n");
+    printf("local time %02d:%02d:%02d\n", (get_current_time()/3600)%24 + 8,
+        (get_current_time()/60)%60,(get_current_time())%60);
+
     struct session *sess = (struct session *)parg;
 	iks *ping = NULL;
 	ping = iks_make_iq(IKS_TYPE_GET, STANZA_NS_PING);
@@ -212,7 +232,6 @@ _ping_timed_handler(void * parg)
         os_timer_arm(&sess->xmpp_pong_timer, PONG_TIMEOUT, 0);
 
         log_debug("iks_filter_add_rule:_pong_handler=%p\n", (iksFilterHook *) _pong_handler);
-        log_debug("&ping = %p\n", &ping);
         iks_filter_add_rule(sess->filter, (iksFilterHook *) _pong_handler, sess, 
                             (IKS_RULE_TYPE + IKS_RULE_ID),
                             IKS_PAK_IQ,
@@ -258,6 +277,7 @@ handshake (struct stream_data *data)
 	return IKS_OK;
 }
 #endif
+
 LOCAL int ICACHE_FLASH_ATTR
 xmpp_conn_handler (struct session *sess, ikspak *pak)
 {
@@ -266,7 +286,9 @@ xmpp_conn_handler (struct session *sess, ikspak *pak)
 
     xmpp_conn_status = 1;
 
-//    log_debug("test:time = %lld\n", system_mktime(2014, 11, 17, 10, 20, 30));
+    printf("local time %02d:%02d:%02d\n", (get_current_time()/3600)%24 + 8,
+        (get_current_time()/60)%60,(get_current_time())%60);
+    
 /* presence online */
     presence = iks_make_pres(IKS_SHOW_AVAILABLE, "Online");
     if (presence) {
@@ -309,6 +331,8 @@ xmpp_conn_handler (struct session *sess, ikspak *pak)
 LOCAL int ICACHE_FLASH_ATTR
 xmpp_bind_handler (struct session *sess, ikspak *pak)
 {
+    log_debug("test\n");
+
     if (sess->authorized) {
         iks *t = NULL;
         if (sess->features & IKS_STREAM_SESSION) { 
@@ -448,7 +472,7 @@ xmpp_send(iks *x)
 int ICACHE_FLASH_ATTR
 xmpp_send_raw(struct session *sess, char *data, size_t size)
 {
-    int ret;
+    int ret = 0;
 
     log_debug("system_get_free_heap_size = %d, size = %d\n", system_get_free_heap_size(), size); 
 
@@ -574,8 +598,6 @@ user_xmppclient_restart_cb(void)
 {
     user_xmppclient_discon();
     user_xmppclient_disconnect();   
-
-    hnt_wifi_led_status_action(WIFI_LED_BLINK_SLOW);    
 }
 
 int ICACHE_FLASH_ATTR
@@ -627,7 +649,7 @@ int xmpp_start(void)
 	sin.sin_port=htons(XMPP_PORT);
 	xmpp_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     printf("xmpp socket num=%d\n", xmpp_sock);
-#if 1
+
 	if (connect(xmpp_sock, (struct sockaddr *)&sin, sizeof(struct sockaddr)) != 0)        
 	{
 		printf("connect failed! socket num=%d\n", xmpp_sock);
@@ -645,7 +667,6 @@ int xmpp_start(void)
         xmpp_send_header();
 //        xmpp_ready = 1;
 	}	
-#endif
 	return 0;    
 }
 
@@ -653,6 +674,13 @@ int xmpp_start(void)
 void ICACHE_FLASH_ATTR
 hnt_xmppcli_start(void)
 {
+    int rx_len = 0;
+    int ret;
+    fd_set fds;
+    int maxsock;    
+    struct timeval tv;
+    u32 msg;
+    
     os_printf("%s\n", __func__);
 #if 0
     if(DeviceCustomInfo != NULL)
@@ -668,12 +696,7 @@ hnt_xmppcli_start(void)
 #endif    
     xmpp_start();
 
-
-    int rx_len = 0;
-    int ret;
-    fd_set fds;
-    int maxsock;    
-    struct timeval tv;
+    xmpp_task_q = xQueueCreate((unsigned portBASE_TYPE)4, sizeof(u32));
     
     for(;;) 
     {   
@@ -689,8 +712,7 @@ hnt_xmppcli_start(void)
             
             maxsock = xmpp_sock;
             
-            ret = select(maxsock + 1, &fds, NULL, NULL, &tv);//wait
-            //log_printf("select ret=%d\n", ret);
+            ret = select(maxsock + 1, &fds, NULL, NULL, &tv);
             if(ret > 0) 
             {
                 if (FD_ISSET(xmpp_sock, &fds))
@@ -703,6 +725,7 @@ hnt_xmppcli_start(void)
                     {
                         printf("rx_len=%d\n", rx_len);
                         xmpp_recv(xmpp_rx_buf, rx_len);
+                        continue;                        
                     }                  
                     else
                     {                   
@@ -715,6 +738,22 @@ hnt_xmppcli_start(void)
                 printf("select error!!\n");
                 printf("select ret=%d\n", ret);
 //                xmpp_err();
+            }
+
+            if (xQueueReceive(xmpp_task_q, (void *)&msg, (portTickType)1/*portMAX_DELAY*/))
+            {
+                switch(msg)
+                {
+                 case MSG_SEND_PING:
+                     _send_ping(&sess);
+                     break;
+                 case MSG_XMPP_STOP:
+                     printf("xmpp stop!!\n"); 
+//                     xmpp_err();
+                     break; 
+                 default:
+                     break;
+                }
             }
 
             continue;
