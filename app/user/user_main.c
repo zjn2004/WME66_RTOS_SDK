@@ -79,12 +79,15 @@ static void ICACHE_FLASH_ATTR wifi_event_hand_function(System_Event_t * event)
 void ICACHE_FLASH_ATTR
 user_init(void)
 {
+#if 0
     struct hnt_mgmt_factory_param factory_param;
-    
+#endif    
     user_custom_init();
+    user_uart_dev_start();
 
     printf("\nSDK version:%s\n", system_get_sdk_version());
 
+#if 0
     memset(&factory_param,0,sizeof(struct hnt_mgmt_factory_param));
     sprintf(factory_param.device_type,"4013");
     sprintf(factory_param.device_id,"15414013000001");
@@ -92,16 +95,13 @@ user_init(void)
     sprintf(factory_param.xmpp_server,"xmpp.seaing.net");
     sprintf(factory_param.xmpp_jid,"d15414013000001@seaing.net");
     sprintf(factory_param.xmpp_password,"H93wwzeCXms");
-
-    hnt_mgmt_factory_init(&factory_param);
-
+#endif
 	wifi_set_event_handler_cb(wifi_event_hand_function);
-
+    
     /* need to set opmode before you set config */
     wifi_set_opmode(STATION_MODE);
-    
-    char sta_mac[6] = {0xC4, 0xCD, 0x45, 0x21, 0x16, 0xC7};
-    wifi_set_macaddr(STATION_IF, sta_mac);
+
+    hnt_mgmt_factory_init(NULL);
     
     hnt_platform_init();
 }

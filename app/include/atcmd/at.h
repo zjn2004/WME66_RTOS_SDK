@@ -69,6 +69,5 @@ typedef struct
   uint32_t saved;
 }at_uartType;
 
-void at_init(void);
 void at_cmd_event(uint8_t *buffer);
 #endif

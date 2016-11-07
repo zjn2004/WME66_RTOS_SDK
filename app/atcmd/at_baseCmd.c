@@ -95,9 +95,9 @@ at_exeCmdGmr(uint8_t id)
 {
   char temp[64];
 
-  os_sprintf(temp, AT_VERSION);
+  sprintf(temp, AT_VERSION);
   uart0_sendStr(temp);  
-  os_sprintf(temp,"%s\r\n", system_get_sdk_version());
+  sprintf(temp,"%s\r\n", system_get_sdk_version());
   uart0_sendStr(temp);
   at_backOk;
 }
@@ -115,7 +115,7 @@ at_exeCmdSoftVersion(uint8_t id)
 
   getSoftwareVersionFunc(NULL, value, 64);
   
-  os_sprintf(temp,"%s\r\n", value);
+  sprintf(temp,"%s\r\n", value);
   uart0_sendStr(temp);
   at_backOk;
 }
@@ -161,7 +161,7 @@ at_exeCmdUpdate(uint8_t id)
   char temp[32];
   updateFlagType upFlag;
 
-  os_sprintf(temp,"Is about to restart\r\n");
+  sprintf(temp,"Is about to restart\r\n");
   uart0_sendStr(temp);
 
   spi_flash_read(60 * 4096, (uint32 *)&upFlag, sizeof(updateFlagType));
@@ -191,14 +191,14 @@ at_setupCmdMpinfo(uint8_t id, char *pPara)
 
   pPara++;
   t = strtol(pPara,NULL,16);
-  os_sprintf(temp,"1st:%x\r\n",t);
+  sprintf(temp,"1st:%x\r\n",t);
   uart0_sendStr(temp);
 
   pPara = strchr(pPara, ',');
 
   pPara++;
   t = strtol(pPara,NULL,16);
-  os_sprintf(temp,"2nd:%x\r\n",t);
+  sprintf(temp,"2nd:%x\r\n",t);
   uart0_sendStr(temp);
 }
 #endif

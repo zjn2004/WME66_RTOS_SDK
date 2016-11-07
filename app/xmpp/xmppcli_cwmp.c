@@ -1840,7 +1840,7 @@ CwmpRpcDownload(const char *to, const char *iq_id,
         xmpp_download_server->check_times = 240000;
         xmpp_download_server->file_size = file_size;
         
-        os_sprintf(xmpp_download_server->url, "GET %s HTTP/1.0\r\nHost: %s:%d\r\n"
+        sprintf(xmpp_download_server->url, "GET %s HTTP/1.0\r\nHost: %s:%d\r\n"
                                               "Connection: keep-alive\r\n"
                                               "User-Agent: Wget\r\n\r\n", filename, host, port);    
         log_debug("%s\n", xmpp_download_server->url);

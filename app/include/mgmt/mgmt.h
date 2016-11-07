@@ -2,9 +2,9 @@
 #define __USER_DEVICE_H__
 
 #include "esp_common.h"
-/* NOTICE---this is for 1024KB spi flash.
+/* NOTICE---this is for 2048KB spi flash.
  * you can change to other sector if you use other size spi flash. */
-#define ESP_PARAM_START_SEC		0x7C
+#define ESP_PARAM_START_SEC		0xFC
 
 #define ESP_PARAM_SAVE_0    0
 #define ESP_PARAM_SAVE_1    1

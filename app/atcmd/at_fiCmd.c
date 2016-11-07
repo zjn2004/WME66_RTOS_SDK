@@ -21,8 +21,7 @@
 #include "atcmd/at_fiCmd.h"
 #include "hnt_interface.h"
 #include "atcmd/at_version.h"
-//#include "driver/uart_register.h"
-//#include "gpio.h"
+#include "driver/gpio.h"
 #include "mgmt/mgmt.h"
 
 #define GPIO_VALUE_0 0
@@ -83,10 +82,10 @@ at_queryCmdCfstamac(uint8_t id)
     memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
     hnt_mgmt_load_factory_param(&tmp_factory_param);
   
-    os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
+    sprintf(temp, "%s:", at_fun[id].at_cmdName);
     uart0_sendStr(temp);
 
-    os_sprintf(temp, "\""MACSTR"\"\r\n", MAC2STR(tmp_factory_param.wlan_mac));
+    sprintf(temp, "\""MACSTR"\"\r\n", MAC2STR(tmp_factory_param.wlan_mac));
     uart0_sendStr(temp);
     at_backOk;
 }
@@ -136,11 +135,11 @@ at_queryCmdCfdevicetype(uint8_t id)
     memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
     hnt_mgmt_load_factory_param(&tmp_factory_param);
   
-    os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
+    sprintf(temp, "%s:", at_fun[id].at_cmdName);
     uart0_sendStr(temp);
     tmp_factory_param.device_type[DEVICEINFO_STRING_LEN-1] = '\0';
 
-    os_sprintf(temp, "\"%s\"\r\n", tmp_factory_param.device_type);
+    sprintf(temp, "\"%s\"\r\n", tmp_factory_param.device_type);
     uart0_sendStr(temp);
     at_backOk;
 }
@@ -183,11 +182,11 @@ at_queryCmdCfdeviceid(uint8_t id)
     memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
     hnt_mgmt_load_factory_param(&tmp_factory_param);
   
-    os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
+    sprintf(temp, "%s:", at_fun[id].at_cmdName);
     uart0_sendStr(temp);
     tmp_factory_param.device_id[DEVICEINFO_STRING_LEN-1] = '\0';
 
-    os_sprintf(temp, "\"%s\"\r\n", tmp_factory_param.device_id);
+    sprintf(temp, "\"%s\"\r\n", tmp_factory_param.device_id);
     uart0_sendStr(temp);
     at_backOk;
 }
@@ -229,11 +228,11 @@ at_queryCmdCfpassword(uint8_t id)
     memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
     hnt_mgmt_load_factory_param(&tmp_factory_param);
   
-    os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
+    sprintf(temp, "%s:", at_fun[id].at_cmdName);
     uart0_sendStr(temp);
     tmp_factory_param.password[DEVICEINFO_STRING_LEN-1] = '\0';
 
-    os_sprintf(temp, "\"%s\"\r\n", tmp_factory_param.password);
+    sprintf(temp, "\"%s\"\r\n", tmp_factory_param.password);
     uart0_sendStr(temp);
     at_backOk;
 }
@@ -275,11 +274,11 @@ at_queryCmdCfxmppserver(uint8_t id)
     memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
     hnt_mgmt_load_factory_param(&tmp_factory_param);
   
-    os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
+    sprintf(temp, "%s:", at_fun[id].at_cmdName);
     uart0_sendStr(temp);
     tmp_factory_param.xmpp_server[63] = '\0';
 
-    os_sprintf(temp, "\"%s\"\r\n", tmp_factory_param.xmpp_server);
+    sprintf(temp, "\"%s\"\r\n", tmp_factory_param.xmpp_server);
     uart0_sendStr(temp);
     at_backOk;
 }
@@ -321,11 +320,11 @@ at_queryCmdCfxmppjid(uint8_t id)
     memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
     hnt_mgmt_load_factory_param(&tmp_factory_param);
   
-    os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
+    sprintf(temp, "%s:", at_fun[id].at_cmdName);
     uart0_sendStr(temp);
     tmp_factory_param.xmpp_jid[63] = '\0';
 
-    os_sprintf(temp, "\"%s\"\r\n", tmp_factory_param.xmpp_jid);
+    sprintf(temp, "\"%s\"\r\n", tmp_factory_param.xmpp_jid);
     uart0_sendStr(temp);
     at_backOk;
 }
@@ -367,11 +366,11 @@ at_queryCmdCfxmpppwd(uint8_t id)
     memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
     hnt_mgmt_load_factory_param(&tmp_factory_param);
   
-    os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
+    sprintf(temp, "%s:", at_fun[id].at_cmdName);
     uart0_sendStr(temp);
     tmp_factory_param.xmpp_password[63] = '\0';
 
-    os_sprintf(temp, "\"%s\"\r\n", tmp_factory_param.xmpp_password);
+    sprintf(temp, "\"%s\"\r\n", tmp_factory_param.xmpp_password);
     uart0_sendStr(temp);
     at_backOk;
 }
@@ -414,10 +413,10 @@ at_queryCmdCfptoinfo(uint8_t id)
     memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
     hnt_mgmt_load_factory_param(&tmp_factory_param);
   
-    os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
+    sprintf(temp, "%s:", at_fun[id].at_cmdName);
     uart0_sendStr(temp);
     
-    os_sprintf(temp, "\"%02x:%02x:%02x:%02x\"\r\n", 
+    sprintf(temp, "\"%02x:%02x:%02x:%02x\"\r\n", 
                     tmp_factory_param.pto_info[0], 
                     tmp_factory_param.pto_info[1], 
                     tmp_factory_param.pto_info[2], 
@@ -475,7 +474,7 @@ at_queryCmdCfdeviceinfo(uint8_t id)
     memset(&tmp_factory_param, 0, sizeof(tmp_factory_param));
     hnt_mgmt_load_factory_param(&tmp_factory_param);
   
-    os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
+    sprintf(temp, "%s:", at_fun[id].at_cmdName);
     uart0_sendStr(temp);
     tmp_factory_param.device_type[DEVICEINFO_STRING_LEN-1] = '\0';
     tmp_factory_param.device_id[DEVICEINFO_STRING_LEN-1] = '\0';
@@ -497,19 +496,19 @@ at_queryCmdCfdeviceinfo(uint8_t id)
     if(tmp_factory_param.xmpp_password[0] == 0xFF)
         tmp_factory_param.xmpp_password[0] = '\0';
         
-    os_sprintf(temp, "\r\ndevice_type = \"%s\"\r\n", tmp_factory_param.device_type);
+    sprintf(temp, "\r\ndevice_type = \"%s\"\r\n", tmp_factory_param.device_type);
     uart0_sendStr(temp);
-    os_sprintf(temp, "device_id =  \"%s\"\r\n", tmp_factory_param.device_id);
+    sprintf(temp, "device_id =  \"%s\"\r\n", tmp_factory_param.device_id);
     uart0_sendStr(temp);
-    os_sprintf(temp, "password = \"%s\"\r\n", tmp_factory_param.password);
+    sprintf(temp, "password = \"%s\"\r\n", tmp_factory_param.password);
     uart0_sendStr(temp);
-    os_sprintf(temp, "xmpp_server = \"%s\"\r\n", tmp_factory_param.xmpp_server);
+    sprintf(temp, "xmpp_server = \"%s\"\r\n", tmp_factory_param.xmpp_server);
     uart0_sendStr(temp);
-    os_sprintf(temp, "xmpp_jid = \"%s\"\r\n", tmp_factory_param.xmpp_jid);
+    sprintf(temp, "xmpp_jid = \"%s\"\r\n", tmp_factory_param.xmpp_jid);
     uart0_sendStr(temp);
-    os_sprintf(temp, "xmpp_password = \"%s\"\r\n", tmp_factory_param.xmpp_password);
+    sprintf(temp, "xmpp_password = \"%s\"\r\n", tmp_factory_param.xmpp_password);
     uart0_sendStr(temp);
-    os_sprintf(temp, "sta_mac = \""MACSTR"\"\r\n", MAC2STR(tmp_factory_param.wlan_mac));
+    sprintf(temp, "sta_mac = \""MACSTR"\"\r\n", MAC2STR(tmp_factory_param.wlan_mac));
     uart0_sendStr(temp);
     at_backOk;
 }
@@ -604,8 +603,8 @@ at_CfdeviceinfoInternal(char *temp)
 
   memset(tmp_factory_param.xmpp_jid, 0, sizeof(tmp_factory_param.xmpp_jid));
   tmp_factory_param.xmpp_jid[0] = 'd';
-  os_strcpy(&tmp_factory_param.xmpp_jid[1], tmp_factory_param.device_id);
-  os_strcpy(&tmp_factory_param.xmpp_jid[os_strlen(tmp_factory_param.xmpp_jid)], "@seaing.net");
+  strcpy(&tmp_factory_param.xmpp_jid[1], tmp_factory_param.device_id);
+  strcpy(&tmp_factory_param.xmpp_jid[strlen(tmp_factory_param.xmpp_jid)], "@seaing.net");
   
   hnt_mgmt_save_factory_param(&tmp_factory_param);
 
@@ -696,7 +695,7 @@ gpio_test_error_msg(int out_pin, int input_pin, int value)
     char temp[64];
 
     memset(temp, 0, sizeof(temp));
-    os_sprintf(temp, "error %d->%d(%d)\r\n", out_pin, input_pin, value);
+    sprintf(temp, "error %d->%d(%d)\r\n", out_pin, input_pin, value);
     uart0_sendStr(temp);                
 }
 
@@ -886,7 +885,7 @@ at_exeCmdAdc(uint8_t id)
 {
     char temp[64] = {0};
     
-    os_sprintf(temp,"%d", system_adc_read());
+    sprintf(temp,"%d", system_adc_read());
     uart0_sendStr(temp);
     at_backOk;
 }
@@ -901,7 +900,7 @@ at_exeCmdPto(uint8_t id)
 {
     char temp[64] = {0};
     
-    os_sprintf(temp,"%08x", system_get_chip_id());
+    sprintf(temp,"%08x", system_get_chip_id());
     uart0_sendStr(temp);
     at_backOk;
 }
@@ -912,12 +911,12 @@ at_queryCmdSwitch(uint8_t id)
     char temp[32] = {0};
     char buffer[32] = {0};
 #if 0//PROFILE_SMARTPLUG
-    os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
+    sprintf(temp, "%s:", at_fun[id].at_cmdName);
     uart0_sendStr(temp);
     
     memset(buffer, 0, sizeof(buffer));
     eSmartPlugGetSwitchStatus(NULL, buffer, sizeof(buffer));
-    os_sprintf(temp, "\"%s\"\r\n", buffer);
+    sprintf(temp, "\"%s\"\r\n", buffer);
     uart0_sendStr(temp);
 #endif    
     at_backOk;
@@ -954,17 +953,17 @@ at_queryCmdDebugTest(uint8_t id)
     char temp[256] = {0};
     char buffer[256] = {0};
     
-    os_sprintf(temp, "%s:", at_fun[id].at_cmdName);
+    sprintf(temp, "%s:", at_fun[id].at_cmdName);
     uart0_sendStr(temp);
 #if 0//PROFILE_SMARTPLUG
     
     memset(buffer, 0, sizeof(buffer));
     eSmartPlugGetTimer(NULL, buffer, sizeof(buffer));
-    os_sprintf(temp, "\"%s\"\r\n", buffer);
+    sprintf(temp, "\"%s\"\r\n", buffer);
     uart0_sendStr(temp);
     memset(buffer, 0, sizeof(buffer));
     eSmartPlugGetWelcome(NULL, buffer, sizeof(buffer));
-    os_sprintf(temp, "\"%s\"\r\n", buffer);
+    sprintf(temp, "\"%s\"\r\n", buffer);
     uart0_sendStr(temp);
 #endif    
     at_backOk;
@@ -988,16 +987,16 @@ at_setupCmdDebugTest(uint8_t id, char *pPara)
   
   log_debug("%s\r\n", pPara);
 #if 1
-  os_strcpy(temp, "{\"type\":\"w\",\"on\": \"d-1;w21600\",\"off\":\"d30;w64800\",\"weekday\":\"-1;1234567\",\"enable\":\"1;1\"}");
+  strcpy(temp, "{\"type\":\"w\",\"on\": \"d-1;w21600\",\"off\":\"d30;w64800\",\"weekday\":\"-1;1234567\",\"enable\":\"1;1\"}");
   log_debug("%s\r\n", temp);
   eSmartPlugSetTimer(NULL, temp);
 
   memset(temp, 0, sizeof(temp));
-  os_strcpy(temp, "{\"mode\": \"1\", \"mac\":\"0c:1d:af:da:f8:0a\"}");
+  strcpy(temp, "{\"mode\": \"1\", \"mac\":\"0c:1d:af:da:f8:0a\"}");
   welcome_path_handle(pPara);
 
 #else
-//  os_strcpy(temp, "{\"mode\": \"1\", \"mac\":\"0c:1d:af:da:f8:0a\"}");
+//  strcpy(temp, "{\"mode\": \"1\", \"mac\":\"0c:1d:af:da:f8:0a\"}");
     welcome_path_handle(pPara);
 #endif
 #endif

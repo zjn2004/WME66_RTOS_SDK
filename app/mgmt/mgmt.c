@@ -203,7 +203,7 @@ int ICACHE_FLASH_ATTR
 hnt_mgmt_factory_init(struct hnt_mgmt_factory_param *factory_param)
 {
     struct hnt_mgmt_factory_param tmp_factory_param;   
-#if 1//def HNT_PTO_SUPPORT
+#if 0//def HNT_PTO_SUPPORT
     uint8 pto_info[4] = {0};
     int i;
 #endif
@@ -222,7 +222,7 @@ hnt_mgmt_factory_init(struct hnt_mgmt_factory_param *factory_param)
     log_debug("test:xmpp_password = %s\n", tmp_factory_param.xmpp_password);
     log_debug("test:mac = %02x:%02x:%02x:%02x:%02x:%02x\n", tmp_factory_param.wlan_mac[0], tmp_factory_param.wlan_mac[1],
     	tmp_factory_param.wlan_mac[2], tmp_factory_param.wlan_mac[3], tmp_factory_param.wlan_mac[4], tmp_factory_param.wlan_mac[5]);
-#if 1//def HNT_PTO_SUPPORT
+#if 0//def HNT_PTO_SUPPORT
     log_debug("test:pto_info = %02x:%02x:%02x:%02x\n", 
                     tmp_factory_param.pto_info[0], 
                     tmp_factory_param.pto_info[1], 
@@ -276,14 +276,13 @@ hnt_mgmt_factory_init(struct hnt_mgmt_factory_param *factory_param)
     else
         return -1;
     
-#if 0        
     if (tmp_factory_param.wlan_mac[0] != 0xFF)
     {
         memcpy(g_hnt_factory_param.wlan_mac, tmp_factory_param.wlan_mac, 6);
+        wifi_set_macaddr(STATION_IF, g_hnt_factory_param.wlan_mac);        
     }
     else
         return -1;
-#endif
 
     return 0;    
 }   

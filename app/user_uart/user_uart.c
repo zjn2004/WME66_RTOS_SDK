@@ -28,7 +28,7 @@
 #include "esp_common.h"
 #include "user_uart/user_uart.h"
 #include "driver/uart.h"
-
+#include "atcmd/at.h"
 
 xQueueHandle xQueueCusUart;
 xQueueHandle uart_rsp_q;
@@ -101,10 +101,7 @@ hnt_at_cmdProcess(char *dat_in, int in_len)
         }
     }
     
-    printf("\n%s\n",dat_in);
-    if((memcmp(&dat_in[2], "+Z", 2) == 0) 
-        ||(memcmp(&dat_in[2], "+z", 2) == 0))
-        system_restart();
+    at_cmd_event(dat_in);
 }
 
 void debug_print_hex_data(char*buf, int len)
@@ -132,7 +129,7 @@ int uart0_write_data(u8 *data, int len)
 
 static u8 ICACHE_FLASH_ATTR cus_uart_data_handle(char *dat_in, int in_len, char *dat_out)
 {
-	ESP_DBG(("uart data handler.."));
+	printf(("uart data handler.."));
 	debug_print_hex_data(dat_in, in_len);
 	return 0x00;
 }
@@ -153,13 +150,13 @@ void ICACHE_FLASH_ATTR user_uart_task(void *pvParameters)
             else if((uartptrData.rx_buf[0] == SYN0)
                 &&(uartptrData.rx_buf[1] == SYN1))
             {
-//                ESP_DBG(("recv uart data,len %d",uartptrData.rx_len));
+//                printf("recv uart data,len %d",uartptrData.rx_len);
 //                debug_print_hex_data(uartptrData.rx_buf,uartptrData.rx_len);
                 hnt_uart_rx_process(uartptrData);
             }
             else
             {
-                ESP_DBG(("recv err uart data,len %d",uartptrData.rx_len));
+                printf("recv err uart data,len %d",uartptrData.rx_len);
                 debug_print_hex_data(uartptrData.rx_buf,uartptrData.rx_len);            
             }
     	}
@@ -171,11 +168,10 @@ void ICACHE_FLASH_ATTR user_uart_task(void *pvParameters)
 
 void ICACHE_FLASH_ATTR user_uart_dev_start(void)
 {
-//    uart_init_new();   // cfg uart0 connection device MCU, cfg uart1 TX debug output
     xQueueCusUart = xQueueCreate((unsigned portBASE_TYPE)CUS_UART0_QUEUE_LENGTH, sizeof(CusUartIntrPtr));
     uart_rsp_q = xQueueCreate((unsigned portBASE_TYPE)4, sizeof(CusUartIntrPtr));
 
-    xTaskCreate(user_uart_task, (uint8 const *)"uart", 256, NULL, tskIDLE_PRIORITY + 1, NULL);
+    xTaskCreate(user_uart_task, (uint8 const *)"uart", 512, NULL, tskIDLE_PRIORITY + 1, NULL);
 
 	return;
 }

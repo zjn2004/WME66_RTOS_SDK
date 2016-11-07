@@ -17,21 +17,19 @@
  */
 #include "esp_common.h"
 #include "atcmd/at_cmd.h"
-//#include "user_interface.h"
 #include "esp_common.h"
-//#include<stdlib.h>
 BOOL echoFlag = true;
 
 void ICACHE_FLASH_ATTR
 less_mem_at_backOk(void)
 {
-    uart0_sendStr("\r\nOK\r\n");
+    uart0_sendStr("OK\r\n");
 }
 
 void ICACHE_FLASH_ATTR
 less_mem_at_at_backError(void)
 {
-    uart0_sendStr("\r\nERROR\r\n");
+    uart0_sendStr("ERROR\r\n");
 }
 
 /** @defgroup AT_BASECMD_Functions
@@ -62,7 +60,7 @@ at_cmdSearch(int8_t cmdLen, uint8_t *pCmd)
       if(cmdLen == at_fun[i].at_cmdLen)
       {
 //        os_printf("%s cmp %s\r\n", pCmd, at_fun[i].at_cmdName);
-        if(os_memcmp(pCmd, at_fun[i].at_cmdName, cmdLen) == 0) //think add cmp len first
+        if(memcmp(pCmd, at_fun[i].at_cmdName, cmdLen) == 0) //think add cmp len first
         {
           return i;
         }
@@ -116,6 +114,7 @@ at_cmdProcess(uint8_t *pAtRcvData)
   uint16_t i;
 
   cmdLen = at_getCmdLen(pAtRcvData);
+  
   if(cmdLen != -1)
   {
     cmdId = at_cmdSearch(cmdLen, pAtRcvData);
@@ -124,9 +123,9 @@ at_cmdProcess(uint8_t *pAtRcvData)
   {
   	cmdId = -1;
   }
+  
   if(cmdId != -1)
   {
-//    os_printf("cmd id: %d\r\n", cmdId);
     pAtRcvData += cmdLen;
     if(*pAtRcvData == '\r')
     {

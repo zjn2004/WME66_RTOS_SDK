@@ -19,8 +19,6 @@
 #define __AT_CMD_H
 
 #include "atcmd/at.h"
-//#include "at_wifiCmd.h"
-//#include "at_ipCmd.h"
 #include "atcmd/at_baseCmd.h"
 #include "atcmd/at_fiCmd.h"
 
@@ -30,9 +28,11 @@ at_funcationType at_fun[]={
   {NULL, 0, NULL, NULL, NULL, at_exeCmdNull},
   {"E", 1, NULL, NULL, at_setupCmdE, NULL},
   {"+RST", 4, NULL, NULL, NULL, at_exeCmdRst},
+  {"+Z", 2, NULL, NULL, NULL, at_exeCmdRst},  
   {"+GMR", 4, NULL, NULL, NULL, at_exeCmdGmr},
   {"+SV", 3, NULL, NULL, NULL, at_exeCmdSoftVersion},
   {"+RESET", 6, NULL, NULL, NULL, at_exeCmdFactoryReset},
+  {"+RSTF", 6, NULL, NULL, NULL, at_exeCmdFactoryReset},  
   {"+GPIOTEST", 9, NULL, NULL, NULL, at_exeCmdGpioTest},
   {"+GPIOTESTS", 10, NULL, NULL, NULL, at_exeCmdGpioTest2},
   {"+ADC", 4, NULL, NULL, NULL, at_exeCmdAdc},

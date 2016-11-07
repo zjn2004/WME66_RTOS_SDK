@@ -157,9 +157,6 @@ hnt_xmpp_notif_config_changed(char *path_fullname, char *para_value);
 void 
 hnt_xmpp_notif_device_info(void);
 
-void 
-at_cmd_event(uint8_t *buffer);
-
 
 typedef void (*hnt_welcome_action_welcome_func)(void);
 typedef void (*hnt_welcome_action_leave_func)(void);

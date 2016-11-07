@@ -249,7 +249,7 @@ welcome_search_mac_from_table(char *client_mac)
         if(welcome_info_table[i].welcome_flag == WELCOME_DIS_LEAVE_DIS)
             continue;
         
-        if(os_memcmp(welcome_info_table[i].client_mac_addr, client_mac, 6) == 0)
+        if(memcmp(welcome_info_table[i].client_mac_addr, client_mac, 6) == 0)
         {
             log_debug("test\n");
             return i;
@@ -286,7 +286,7 @@ welcome_add_one_client(uint8_t mode, char *client_mac)
             continue;
         }
         
-        if(os_memcmp(welcome_info_table[i].client_mac_addr, client_mac, 6) == 0)
+        if(memcmp(welcome_info_table[i].client_mac_addr, client_mac, 6) == 0)
         {
             log_debug("test\n");
             welcome_info_table[i].welcome_flag = mode;
@@ -319,7 +319,7 @@ welcome_del_one_client(uint8_t mode, char *client_mac)
     int i;
     for(i = 0; i < HNT_WELCOME_INFO_NUM; i++)
     {
-        if(os_memcmp(welcome_info_table[i].client_mac_addr, client_mac, 6) == 0)
+        if(memcmp(welcome_info_table[i].client_mac_addr, client_mac, 6) == 0)
         {
             log_debug("test\n");
             memset(&welcome_info_table[i], 0, sizeof(welcome_info_t));
@@ -394,8 +394,8 @@ welcome_path_get(char *path_string, int size)
             log_debug("param.welcome_info[%d].pad = %d\n", i, param.welcome_info[i].pad);
             log_debug("param.welcome_info[%d].mac = " MACSTR"\n", i, MAC2STR(param.welcome_info[i].client_mac_addr));
             
-            if((os_memcmp(param.welcome_info[i].client_mac_addr, zero_mac, 6) != 0) &&
-                (os_memcmp(param.welcome_info[i].client_mac_addr, ff_mac, 6) != 0))
+            if((memcmp(param.welcome_info[i].client_mac_addr, zero_mac, 6) != 0) &&
+                (memcmp(param.welcome_info[i].client_mac_addr, ff_mac, 6) != 0))
             {
                 len += snprintf(path_string+len, sizeof(path_string) - len, "{\"mode\":\"%d\",\"mac\":\""MACSTR"\"},",
                     param.welcome_info[i].welcome_flag, MAC2STR(param.welcome_info[i].client_mac_addr));
