@@ -31,7 +31,8 @@ SUBDIRS=    \
 	atcmd \
 	websocket \
 	xmpp \
-	custom
+	onbd \
+	custom 
 
 endif # } PDIR
 
@@ -65,6 +66,7 @@ COMPONENTS_eagle.app.v6 += \
         atcmd/libatcmd.a  \
 	websocket/libwebsocket.a \
 	xmpp/libxmpp.a \
+	onbd/libonbd.a \
 	custom/libcustom.a
 
 LINKFLAGS_eagle.app.v6 = \
